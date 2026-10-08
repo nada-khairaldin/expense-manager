@@ -9,9 +9,19 @@ export function getExpenses(_req: Request, res: Response) {
 
 export function getExpenseById(req: Request, res: Response) {
     const id = Number(req.params.id);
-    const expenses = fetchExpenses();
-    res.json(expenses)
+    const expense = fetchExpenses().find((expense) => expense.id === id);
+
+  if (!expense) {
+    res.status(404).json({
+      message: "Expense not found",
+    });
+
+    return;
+  }
+
+  res.json(expense);
 }
+
 
 export function createExpense(req: Request, res: Response) {
     const { amount, categoryId, description, date } = req.body;
