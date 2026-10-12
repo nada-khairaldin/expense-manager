@@ -1,0 +1,22 @@
+
+@baseUrl = http://localhost:5000
+
+### جلب كل المصروفات
+GET {{baseUrl}}/expenses
+
+### جلب مصروف واحد
+GET {{baseUrl}}/expenses/2
+
+### إضافة مصروف
+POST {{baseUrl}}/expenses
+Content-Type: application/json
+
+{
+  "amount": 75,
+  "categoryId": 1,
+  "description": "Transport",
+  "date": "2026-10-09"
+}
+
+### حذف مصروف
+DELETE {{baseUrl}}/expenses/2
