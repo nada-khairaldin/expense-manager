@@ -1,0 +1,131 @@
+@import "tailwindcss";
+
+@variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-cairo: var(--font-cairo), system-ui, -apple-system, sans-serif;
+  
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-surface-hover: var(--surface-hover);
+  --color-border: var(--border);
+  --color-border-subtle: var(--border-subtle);
+
+  --color-brand-primary: var(--brand-primary);
+  --color-brand-primary-hover: var(--brand-primary-hover);
+  --color-brand-primary-foreground: var(--brand-primary-foreground);
+
+  --color-brand-teal: var(--brand-teal);
+  --color-brand-teal-light: var(--brand-teal-light);
+  --color-brand-gold: var(--brand-gold);
+  --color-brand-gold-light: var(--brand-gold-light);
+
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+
+  --color-status-success: var(--status-success);
+  --color-status-success-bg: var(--status-success-bg);
+  --color-status-warning: var(--status-warning);
+  --color-status-warning-bg: var(--status-warning-bg);
+  --color-status-danger: var(--status-danger);
+  --color-status-danger-bg: var(--status-danger-bg);
+}
+
+:root {
+  /* Finance Pro - Light Palette */
+  --background: #F5F7FA;
+  --foreground: #14263D;
+  --surface: #FFFFFF;
+  --surface-muted: #F1F4F8;
+  --surface-hover: #E9EEF5;
+  --border: #E2E8F0;
+  --border-subtle: #EDF2F7;
+
+  /* Brand Colors */
+  --brand-primary: #14263D;
+  --brand-primary-hover: #0E1B2C;
+  --brand-primary-foreground: #FFFFFF;
+
+  --brand-teal: #16856B;
+  --brand-teal-light: #E6F4F0;
+  --brand-gold: #D5A64A;
+  --brand-gold-light: #FAF5EB;
+
+  /* Typography */
+  --text-primary: #14263D;
+  --text-secondary: #5A6A80;
+  --text-muted: #8E9CAB;
+
+  /* Financial Status */
+  --status-success: #16856B;
+  --status-success-bg: #EAF7F3;
+  --status-warning: #C2841B;
+  --status-warning-bg: #FEF8ED;
+  --status-danger: #D13B3B;
+  --status-danger-bg: #FDF2F2;
+}
+
+.dark {
+  /* Finance Pro - Dark Palette (Deep Trustworthy Navy-Slate) */
+  --background: #0B131E;
+  --foreground: #F1F5F9;
+  --surface: #132032;
+  --surface-muted: #1A2B42;
+  --surface-hover: #223753;
+  --border: #23354E;
+  --border-subtle: #19273B;
+
+  /* Brand Colors */
+  --brand-primary: #1E3A5F;
+  --brand-primary-hover: #264A78;
+  --brand-primary-foreground: #FFFFFF;
+
+  --brand-teal: #1EB995;
+  --brand-teal-light: #10332B;
+  --brand-gold: #E5B458;
+  --brand-gold-light: #3A2E17;
+
+  /* Typography */
+  --text-primary: #F1F5F9;
+  --text-secondary: #94A3B8;
+  --text-muted: #64748B;
+
+  /* Financial Status */
+  --status-success: #1EB995;
+  --status-success-bg: #0F322A;
+  --status-warning: #E09F3E;
+  --status-warning-bg: #382A12;
+  --status-danger: #F87171;
+  --status-danger-bg: #3B1B1B;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-cairo), system-ui, -apple-system, sans-serif;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
