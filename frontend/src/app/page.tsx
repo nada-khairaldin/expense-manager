@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { siteConfig } from "@/config/site";
-import { formatCurrency } from "@/lib/formatters/formatCurrency";
+import { Logo } from "@/components/shared/Logo";
 import { ThemeToggle } from "@/components/shared/ThemeToggle";
-import { ArrowLeft, CheckCircle2, ShieldCheck, Wallet, Sparkles } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
 export default function HomePage() {
   return (
@@ -10,19 +10,9 @@ export default function HomePage() {
       {/* Header */}
       <header className="border-b border-border bg-surface/80 backdrop-blur sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-brand-primary flex items-center justify-center text-brand-primary-foreground shadow-sm">
-              <Wallet className="w-5 h-5 text-brand-gold" />
-            </div>
-            <div>
-              <span className="text-xl font-bold tracking-tight text-brand-primary dark:text-foreground">
-                {siteConfig.name}
-              </span>
-              <span className="text-xs text-text-muted ms-2 hidden sm:inline-block font-sans">
-                {siteConfig.nameEn}
-              </span>
-            </div>
-          </div>
+          <Link href="/dashboard" className="flex items-center">
+            <Logo variant="horizontal" size="md" />
+          </Link>
 
           <div className="flex items-center gap-3">
             <ThemeToggle />

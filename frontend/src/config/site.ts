@@ -9,7 +9,7 @@ export interface NavItem {
 
 export const siteConfig = {
   name: "مصروفي",
-  nameEn: "Masroofi",
+  nameEn: "Masrofi",
   description: "نظام ذكي وشامل لإدارة المصروفات والميزانية الشخصية والعائلية بأسلوب احترافي وموثوق",
   url: "https://masroofi.app",
   direction: "rtl" as const,
