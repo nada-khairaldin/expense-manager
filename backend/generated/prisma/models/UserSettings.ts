@@ -39,6 +39,7 @@ export type UserSettingsMinAggregateOutputType = {
   userId: string | null
   currency: string | null
   budgetRenewalDay: number | null
+  budgetSetupCompleted: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -48,6 +49,7 @@ export type UserSettingsMaxAggregateOutputType = {
   userId: string | null
   currency: string | null
   budgetRenewalDay: number | null
+  budgetSetupCompleted: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -57,6 +59,7 @@ export type UserSettingsCountAggregateOutputType = {
   userId: number
   currency: number
   budgetRenewalDay: number
+  budgetSetupCompleted: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -76,6 +79,7 @@ export type UserSettingsMinAggregateInputType = {
   userId?: true
   currency?: true
   budgetRenewalDay?: true
+  budgetSetupCompleted?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -85,6 +89,7 @@ export type UserSettingsMaxAggregateInputType = {
   userId?: true
   currency?: true
   budgetRenewalDay?: true
+  budgetSetupCompleted?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -94,6 +99,7 @@ export type UserSettingsCountAggregateInputType = {
   userId?: true
   currency?: true
   budgetRenewalDay?: true
+  budgetSetupCompleted?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -190,6 +196,7 @@ export type UserSettingsGroupByOutputType = {
   userId: string
   currency: string
   budgetRenewalDay: number
+  budgetSetupCompleted: boolean
   createdAt: Date
   updatedAt: Date
   _count: UserSettingsCountAggregateOutputType | null
@@ -222,6 +229,7 @@ export type UserSettingsWhereInput = {
   userId?: Prisma.StringFilter<"UserSettings"> | string
   currency?: Prisma.StringFilter<"UserSettings"> | string
   budgetRenewalDay?: Prisma.IntFilter<"UserSettings"> | number
+  budgetSetupCompleted?: Prisma.BoolFilter<"UserSettings"> | boolean
   createdAt?: Prisma.DateTimeFilter<"UserSettings"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"UserSettings"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -232,6 +240,7 @@ export type UserSettingsOrderByWithRelationInput = {
   userId?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   budgetRenewalDay?: Prisma.SortOrder
+  budgetSetupCompleted?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
@@ -245,6 +254,7 @@ export type UserSettingsWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.UserSettingsWhereInput | Prisma.UserSettingsWhereInput[]
   currency?: Prisma.StringFilter<"UserSettings"> | string
   budgetRenewalDay?: Prisma.IntFilter<"UserSettings"> | number
+  budgetSetupCompleted?: Prisma.BoolFilter<"UserSettings"> | boolean
   createdAt?: Prisma.DateTimeFilter<"UserSettings"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"UserSettings"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -255,6 +265,7 @@ export type UserSettingsOrderByWithAggregationInput = {
   userId?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   budgetRenewalDay?: Prisma.SortOrder
+  budgetSetupCompleted?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.UserSettingsCountOrderByAggregateInput
@@ -272,6 +283,7 @@ export type UserSettingsScalarWhereWithAggregatesInput = {
   userId?: Prisma.StringWithAggregatesFilter<"UserSettings"> | string
   currency?: Prisma.StringWithAggregatesFilter<"UserSettings"> | string
   budgetRenewalDay?: Prisma.IntWithAggregatesFilter<"UserSettings"> | number
+  budgetSetupCompleted?: Prisma.BoolWithAggregatesFilter<"UserSettings"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"UserSettings"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"UserSettings"> | Date | string
 }
@@ -280,6 +292,7 @@ export type UserSettingsCreateInput = {
   id?: string
   currency?: string
   budgetRenewalDay?: number
+  budgetSetupCompleted?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutSettingsInput
@@ -290,6 +303,7 @@ export type UserSettingsUncheckedCreateInput = {
   userId: string
   currency?: string
   budgetRenewalDay?: number
+  budgetSetupCompleted?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -298,6 +312,7 @@ export type UserSettingsUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   budgetRenewalDay?: Prisma.IntFieldUpdateOperationsInput | number
+  budgetSetupCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutSettingsNestedInput
@@ -308,6 +323,7 @@ export type UserSettingsUncheckedUpdateInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   budgetRenewalDay?: Prisma.IntFieldUpdateOperationsInput | number
+  budgetSetupCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -317,6 +333,7 @@ export type UserSettingsCreateManyInput = {
   userId: string
   currency?: string
   budgetRenewalDay?: number
+  budgetSetupCompleted?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -325,6 +342,7 @@ export type UserSettingsUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   budgetRenewalDay?: Prisma.IntFieldUpdateOperationsInput | number
+  budgetSetupCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -334,6 +352,7 @@ export type UserSettingsUncheckedUpdateManyInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   budgetRenewalDay?: Prisma.IntFieldUpdateOperationsInput | number
+  budgetSetupCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -348,6 +367,7 @@ export type UserSettingsCountOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   budgetRenewalDay?: Prisma.SortOrder
+  budgetSetupCompleted?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -361,6 +381,7 @@ export type UserSettingsMaxOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   budgetRenewalDay?: Prisma.SortOrder
+  budgetSetupCompleted?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -370,6 +391,7 @@ export type UserSettingsMinOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   budgetRenewalDay?: Prisma.SortOrder
+  budgetSetupCompleted?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -418,10 +440,15 @@ export type IntFieldUpdateOperationsInput = {
   divide?: number
 }
 
+export type BoolFieldUpdateOperationsInput = {
+  set?: boolean
+}
+
 export type UserSettingsCreateWithoutUserInput = {
   id?: string
   currency?: string
   budgetRenewalDay?: number
+  budgetSetupCompleted?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -430,6 +457,7 @@ export type UserSettingsUncheckedCreateWithoutUserInput = {
   id?: string
   currency?: string
   budgetRenewalDay?: number
+  budgetSetupCompleted?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -454,6 +482,7 @@ export type UserSettingsUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   budgetRenewalDay?: Prisma.IntFieldUpdateOperationsInput | number
+  budgetSetupCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -462,6 +491,7 @@ export type UserSettingsUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   budgetRenewalDay?: Prisma.IntFieldUpdateOperationsInput | number
+  budgetSetupCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -473,6 +503,7 @@ export type UserSettingsSelect<ExtArgs extends runtime.Types.Extensions.Internal
   userId?: boolean
   currency?: boolean
   budgetRenewalDay?: boolean
+  budgetSetupCompleted?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -483,6 +514,7 @@ export type UserSettingsSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   userId?: boolean
   currency?: boolean
   budgetRenewalDay?: boolean
+  budgetSetupCompleted?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -493,6 +525,7 @@ export type UserSettingsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   userId?: boolean
   currency?: boolean
   budgetRenewalDay?: boolean
+  budgetSetupCompleted?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -503,11 +536,12 @@ export type UserSettingsSelectScalar = {
   userId?: boolean
   currency?: boolean
   budgetRenewalDay?: boolean
+  budgetSetupCompleted?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type UserSettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "currency" | "budgetRenewalDay" | "createdAt" | "updatedAt", ExtArgs["result"]["userSettings"]>
+export type UserSettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "currency" | "budgetRenewalDay" | "budgetSetupCompleted" | "createdAt" | "updatedAt", ExtArgs["result"]["userSettings"]>
 export type UserSettingsInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
@@ -528,6 +562,7 @@ export type $UserSettingsPayload<ExtArgs extends runtime.Types.Extensions.Intern
     userId: string
     currency: string
     budgetRenewalDay: number
+    budgetSetupCompleted: boolean
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["userSettings"]>
@@ -958,6 +993,7 @@ export interface UserSettingsFieldRefs {
   readonly userId: Prisma.FieldRef<"UserSettings", 'String'>
   readonly currency: Prisma.FieldRef<"UserSettings", 'String'>
   readonly budgetRenewalDay: Prisma.FieldRef<"UserSettings", 'Int'>
+  readonly budgetSetupCompleted: Prisma.FieldRef<"UserSettings", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"UserSettings", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"UserSettings", 'DateTime'>
 }

@@ -459,10 +459,6 @@ export type NullableStringFieldUpdateOperationsInput = {
   set?: string | null
 }
 
-export type BoolFieldUpdateOperationsInput = {
-  set?: boolean
-}
-
 export type CategoryCreateNestedOneWithoutCategoryBudgetsInput = {
   create?: Prisma.XOR<Prisma.CategoryCreateWithoutCategoryBudgetsInput, Prisma.CategoryUncheckedCreateWithoutCategoryBudgetsInput>
   connectOrCreate?: Prisma.CategoryCreateOrConnectWithoutCategoryBudgetsInput

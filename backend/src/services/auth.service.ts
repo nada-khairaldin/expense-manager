@@ -37,6 +37,7 @@ export async function registerUser(input: RegisterInput) {
         create: {
           currency: "ILS",
           budgetRenewalDay: 1,
+          budgetSetupCompleted: false,
         },
       },
     },
@@ -50,6 +51,7 @@ export async function registerUser(input: RegisterInput) {
           id: true,
           currency: true,
           budgetRenewalDay: true,
+          budgetSetupCompleted: true,
         },
       },
     },
@@ -61,7 +63,19 @@ export async function registerUser(input: RegisterInput) {
     name: user.name,
   });
 
-  return { user, token };
+  return {
+    user: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      createdAt: user.createdAt,
+      currency: user.settings?.currency ?? "ILS",
+      budgetRenewalDay: user.settings?.budgetRenewalDay ?? 1,
+      budgetSetupCompleted: user.settings?.budgetSetupCompleted ?? false,
+      settings: user.settings,
+    },
+    token,
+  };
 }
 
 export async function loginUser(input: LoginInput) {
@@ -73,6 +87,7 @@ export async function loginUser(input: LoginInput) {
           id: true,
           currency: true,
           budgetRenewalDay: true,
+          budgetSetupCompleted: true,
         },
       },
     },
@@ -100,6 +115,9 @@ export async function loginUser(input: LoginInput) {
       name: user.name,
       email: user.email,
       createdAt: user.createdAt,
+      currency: user.settings?.currency ?? "ILS",
+      budgetRenewalDay: user.settings?.budgetRenewalDay ?? 1,
+      budgetSetupCompleted: user.settings?.budgetSetupCompleted ?? false,
       settings: user.settings,
     },
     token,
@@ -120,6 +138,7 @@ export async function getMe(userId: string) {
           id: true,
           currency: true,
           budgetRenewalDay: true,
+          budgetSetupCompleted: true,
         },
       },
     },
@@ -129,5 +148,15 @@ export async function getMe(userId: string) {
     throw new AppError(404, "User not found");
   }
 
-  return user;
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt,
+    currency: user.settings?.currency ?? "ILS",
+    budgetRenewalDay: user.settings?.budgetRenewalDay ?? 1,
+    budgetSetupCompleted: user.settings?.budgetSetupCompleted ?? false,
+    settings: user.settings,
+  };
 }

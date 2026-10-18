@@ -92,6 +92,7 @@ export const UserSettingsScalarFieldEnum = {
   userId: 'userId',
   currency: 'currency',
   budgetRenewalDay: 'budgetRenewalDay',
+  budgetSetupCompleted: 'budgetSetupCompleted',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

@@ -14,23 +14,27 @@ export function toUTCDateOnly(d: Date): Date {
  * safely clamping to the actual number of days in that month.
  */
 export function getRenewalDateForMonth(year: number, month: number, renewalDay: number): Date {
+  const safeDay = Math.min(Math.max(1, Math.floor(renewalDay)), 31);
   const daysInMonth = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
-  const clampedDay = Math.min(Math.max(1, renewalDay), daysInMonth);
+  const clampedDay = Math.min(safeDay, daysInMonth);
   return new Date(Date.UTC(year, month, clampedDay));
 }
 
 /**
  * Computes the cycle start date and cycle end date that covers the given date,
- * respecting the user's configured renewal day and handling shorter months.
+ * respecting the user's configured renewal day (1-31) and handling shorter months.
+ * Guarantees contiguous cycles with no gaps or overlaps.
  */
-export function calculateCycleDateRange(dateOnly: Date, renewalDay: number): {
+export function calculateCycleDateRange(targetDate: Date, renewalDay: number): {
   startDate: Date;
   endDate: Date;
 } {
+  const dateOnly = toUTCDateOnly(targetDate);
+  const safeRenewalDay = Math.min(Math.max(1, Math.floor(renewalDay)), 31);
   const y = dateOnly.getUTCFullYear();
   const m = dateOnly.getUTCMonth();
 
-  const currentMonthRenewal = getRenewalDateForMonth(y, m, renewalDay);
+  const currentMonthRenewal = getRenewalDateForMonth(y, m, safeRenewalDay);
 
   let cycleStartDate: Date;
   let nextCycleStartDate: Date;
@@ -39,11 +43,11 @@ export function calculateCycleDateRange(dateOnly: Date, renewalDay: number): {
     cycleStartDate = currentMonthRenewal;
     const nextYear = m === 11 ? y + 1 : y;
     const nextMonth = (m + 1) % 12;
-    nextCycleStartDate = getRenewalDateForMonth(nextYear, nextMonth, renewalDay);
+    nextCycleStartDate = getRenewalDateForMonth(nextYear, nextMonth, safeRenewalDay);
   } else {
     const prevYear = m === 0 ? y - 1 : y;
     const prevMonth = (m + 11) % 12;
-    cycleStartDate = getRenewalDateForMonth(prevYear, prevMonth, renewalDay);
+    cycleStartDate = getRenewalDateForMonth(prevYear, prevMonth, safeRenewalDay);
     nextCycleStartDate = currentMonthRenewal;
   }
 
@@ -76,6 +80,7 @@ export async function resolveBudgetCycle(
       startDate: { lte: dateOnly },
       endDate: { gte: dateOnly },
     },
+    orderBy: { startDate: "desc" },
   });
 
   if (existingCoveringCycle) {
