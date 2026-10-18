@@ -1,14 +1,16 @@
 {
   "compilerOptions": {
-    "rootDir": "./src",
+    "rootDir": ".",
     "outDir": "./dist",
-
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "target": "ES2022",
-    "lib": ["ES2022"],
-    "types": ["node"],
-
+    "lib": [
+      "ES2022"
+    ],
+    "types": [
+      "node"
+    ],
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
@@ -17,18 +19,16 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
     "moduleDetection": "force",
-
     "sourceMap": true,
-
     "esModuleInterop": true,
     "skipLibCheck": true,
-
     "noUncheckedSideEffectImports": true
   },
-
-  "include": ["src"]
+  "include": [
+    "src",
+    "server.ts"
+  ]
 }
