@@ -1,26 +1,39 @@
 import { z } from "zod";
 
-export const createExpenseSchema = z.object({
-  amount: z.number().positive(),
-  categoryId: z.number().int().positive(),
-  description: z.string().trim().max(800).optional(),
-  date: z.coerce.date(),
-});
+export const createExpenseSchema = z
+  .object({
+    amount: z.number().positive("Amount must be positive"),
+    categoryId: z.string().min(1, "Category ID must not be empty").nullable().optional(),
+    description: z.string().trim().max(800).nullable().optional(),
+    date: z.coerce.date().optional(),
+    expenseDate: z.coerce.date().optional(),
+  })
+  .transform((data) => ({
+    ...data,
+    date: data.expenseDate ?? data.date ?? new Date(),
+  }));
+
 export type CreateExpenseInput = z.infer<typeof createExpenseSchema>;
 
-export const updateExpenseSchema = createExpenseSchema
-  .partial()
-  .refine(
-    (data) => Object.keys(data).length > 0,
-    {
-      message: "At least one field must be provided",
-    },
-  );
+export const updateExpenseSchema = z
+  .object({
+    amount: z.number().positive("Amount must be positive").optional(),
+    categoryId: z.string().min(1).nullable().optional(),
+    description: z.string().trim().max(800).nullable().optional(),
+    date: z.coerce.date().optional(),
+    expenseDate: z.coerce.date().optional(),
+  })
+  .refine((data) => Object.keys(data).length > 0, {
+    message: "At least one field must be provided",
+  });
 
-export type UpdateExpenseInput = z.infer<
-  typeof updateExpenseSchema
->;
+export type UpdateExpenseInput = z.infer<typeof updateExpenseSchema>;
 
+const parseQueryString = (value: unknown): string | undefined => {
+  if (value === undefined || value === null) return undefined;
+  if (typeof value !== "string" || value.trim() === "") return undefined;
+  return value.trim();
+};
 
 const parseQueryNumber = (value: unknown): unknown => {
   if (value === undefined) return undefined;
@@ -68,24 +81,22 @@ const parseEndDate = (value: unknown): unknown => {
   return parsed;
 };
 
-
 export const expenseQuerySchema = z
   .object({
     categoryId: z.preprocess(
-      parseQueryNumber,
-      z.number().int().positive().optional(),
+      parseQueryString,
+      z.string().min(1).optional(),
     ),
 
-  startDate: z.preprocess(
-    parseQueryDate,
-    z.date().optional(),
-  ),
+    startDate: z.preprocess(
+      parseQueryDate,
+      z.date().optional(),
+    ),
 
-  endDate: z.preprocess(
-    parseEndDate,
-    z.date().optional(),
-  ),
-
+    endDate: z.preprocess(
+      parseEndDate,
+      z.date().optional(),
+    ),
 
     minAmount: z.preprocess(
       parseQueryNumber,

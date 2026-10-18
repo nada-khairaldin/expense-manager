@@ -1,137 +1,292 @@
+import { prisma } from "../lib/prisma.js";
+import { AppError } from "../errors/app-error.js";
+import { resolveBudgetCycle } from "./budget-cycle.service.js";
+import type {
+  CreateExpenseInput,
+  UpdateExpenseInput,
+  ExpenseFilters,
+} from "../schemas/expense.schema.js";
+import type { Prisma } from "../../generated/prisma/client.js";
 
-import type { CreateExpenseInput, UpdateExpenseInput } from "../schemas/expense.schema.js";
-import type { ExpenseFilters } from "../schemas/expense.schema.js";
-export type Expense = CreateExpenseInput & {
-  id: number;
-};
+export interface FormattedExpense {
+  id: string;
+  amount: number;
+  categoryId: string | null;
+  categoryName: string;
+  categoryIcon: string | null;
+  categoryColor: string | null;
+  description: string | null;
+  date: Date;
+  expenseDate: Date;
+  budgetCycleId: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
+function formatExpense(expense: {
+  id: string;
+  amount: Prisma.Decimal;
+  categoryId: string | null;
+  categoryNameSnapshot: string;
+  description: string | null;
+  expenseDate: Date;
+  budgetCycleId: string;
+  createdAt: Date;
+  updatedAt: Date;
+  category?: {
+    id: string;
+    name: string;
+    icon: string | null;
+    color: string | null;
+  } | null;
+}): FormattedExpense {
+  return {
+    id: expense.id,
+    amount: Number(expense.amount),
+    categoryId: expense.categoryId,
+    categoryName: expense.category?.name ?? expense.categoryNameSnapshot,
+    categoryIcon: expense.category?.icon ?? null,
+    categoryColor: expense.category?.color ?? null,
+    description: expense.description,
+    date: expense.expenseDate,
+    expenseDate: expense.expenseDate,
+    budgetCycleId: expense.budgetCycleId,
+    createdAt: expense.createdAt,
+    updatedAt: expense.updatedAt,
+  };
+}
 
-const expenses: Expense[] = [
-  {
-    id: 1,
-    amount: 50,
-    categoryId: 1,
-    description: "Groceries",
-    date: new Date("2026-10-01"),
-  },
-  {
-    id: 2,
-    amount: 30,
-    categoryId: 2,
-    description: "Education",
-    date: new Date("2026-10-02"),
-  },
-];
+export async function fetchExpenses(userId: string, filters: ExpenseFilters) {
+  const where: Prisma.ExpenseWhereInput = {
+    userId,
+    ...(filters.categoryId ? { categoryId: filters.categoryId } : {}),
+    ...((filters.startDate || filters.endDate)
+      ? {
+          expenseDate: {
+            ...(filters.startDate ? { gte: filters.startDate } : {}),
+            ...(filters.endDate ? { lte: filters.endDate } : {}),
+          },
+        }
+      : {}),
+    ...((filters.minAmount !== undefined || filters.maxAmount !== undefined)
+      ? {
+          amount: {
+            ...(filters.minAmount !== undefined ? { gte: filters.minAmount } : {}),
+            ...(filters.maxAmount !== undefined ? { lte: filters.maxAmount } : {}),
+          },
+        }
+      : {}),
+  };
 
-
-export function fetchExpenses(filters: ExpenseFilters) {
-  let result = [...expenses];
-
-  if (filters.categoryId !== undefined) {
-    result = result.filter(
-      (expense) => expense.categoryId === filters.categoryId,
-    );
-  }
-
-  if (filters.startDate) {
-    result = result.filter(
-      (expense) => expense.date >= filters.startDate!,
-    );
-  }
-
-  if (filters.endDate) {
-    result = result.filter(
-      (expense) => expense.date <= filters.endDate!,
-    );
-  }
-
-  if (filters.minAmount !== undefined) {
-    result = result.filter(
-      (expense) => expense.amount >= filters.minAmount!,
-    );
-  }
-
-  if (filters.maxAmount !== undefined) {
-    result = result.filter(
-      (expense) => expense.amount <= filters.maxAmount!,
-    );
-  }
-
-  const sortBy = filters.sortBy ?? "date";
+  const sortBy = filters.sortBy === "amount" ? "amount" : "expenseDate";
   const order = filters.order ?? "desc";
-  const direction = order === "asc" ? 1 : -1;
 
-  result.sort((a, b) => {
-    const comparison =
-      sortBy === "amount"
-        ? a.amount - b.amount
-        : a.date.getTime() - b.date.getTime();
+  const total = await prisma.expense.count({ where });
 
-    return comparison * direction;
+  const page = filters.page;
+  const limit = filters.limit;
+  const skip = (page - 1) * limit;
+
+  const rawExpenses = await prisma.expense.findMany({
+    where,
+    include: {
+      category: {
+        select: {
+          id: true,
+          name: true,
+          icon: true,
+          color: true,
+        },
+      },
+    },
+    orderBy: {
+      [sortBy]: order,
+    },
+    skip,
+    take: limit,
   });
 
-  const total = result.length;
-  const startIndex = (filters.page - 1) * filters.limit;
-  const data = result.slice(startIndex, startIndex + filters.limit);
-
   return {
-    data,
+    data: rawExpenses.map(formatExpense),
     pagination: {
-      page: filters.page,
-      limit: filters.limit,
+      page,
+      limit,
       total,
-      totalPages: Math.ceil(total / filters.limit),
+      totalPages: Math.ceil(total / limit),
     },
   };
 }
 
+export async function fetchExpenseById(
+  userId: string,
+  id: string,
+): Promise<FormattedExpense | null> {
+  const expense = await prisma.expense.findFirst({
+    where: {
+      id,
+      userId,
+    },
+    include: {
+      category: {
+        select: {
+          id: true,
+          name: true,
+          icon: true,
+          color: true,
+        },
+      },
+    },
+  });
 
-export function fetchExpenseById(
-  id: number,
-): Expense | undefined {
-  return expenses.find((expense) => expense.id === id);
+  return expense ? formatExpense(expense) : null;
 }
 
-export function addExpense(
+export async function addExpense(
+  userId: string,
   input: CreateExpenseInput,
-): Expense {
-  const nextId =
-    Math.max(0, ...expenses.map((expense) => expense.id)) + 1;
+): Promise<FormattedExpense> {
+  let categoryNameSnapshot = "غير مصنف";
+  let validCategoryId: string | null = null;
 
-  const expense: Expense = {
-    id: nextId,
-    ...input,
-  };
+  if (input.categoryId) {
+    const category = await prisma.category.findFirst({
+      where: {
+        id: input.categoryId,
+        userId,
+      },
+    });
 
-  expenses.push(expense);
+    if (!category) {
+      throw new AppError(400, "Category not found or does not belong to user");
+    }
 
-  return expense;
+    categoryNameSnapshot = category.name;
+    validCategoryId = category.id;
+  }
+
+  const expenseDate = input.date;
+  const budgetCycle = await resolveBudgetCycle(userId, expenseDate);
+
+  const expense = await prisma.expense.create({
+    data: {
+      userId,
+      budgetCycleId: budgetCycle.id,
+      categoryId: validCategoryId,
+      categoryNameSnapshot,
+      description: input.description ?? null,
+      amount: input.amount,
+      expenseDate,
+    },
+    include: {
+      category: {
+        select: {
+          id: true,
+          name: true,
+          icon: true,
+          color: true,
+        },
+      },
+    },
+  });
+
+  return formatExpense(expense);
 }
 
+export async function updateExpense(
+  userId: string,
+  id: string,
+  input: UpdateExpenseInput,
+): Promise<FormattedExpense | null> {
+  const existing = await prisma.expense.findFirst({
+    where: {
+      id,
+      userId,
+    },
+  });
 
-export function removeExpense(id: number): boolean {
-  const index = expenses.findIndex((expense) => expense.id === id);
+  if (!existing) {
+    return null;
+  }
 
-  if (index === -1) {
+  let updatedCategoryId: string | null | undefined = undefined;
+  let updatedCategoryNameSnapshot: string | undefined = undefined;
+
+  if (input.categoryId !== undefined) {
+    if (input.categoryId === null) {
+      updatedCategoryId = null;
+      updatedCategoryNameSnapshot = "غير مصنف";
+    } else {
+      const category = await prisma.category.findFirst({
+        where: {
+          id: input.categoryId,
+          userId,
+        },
+      });
+
+      if (!category) {
+        throw new AppError(400, "Category not found or does not belong to user");
+      }
+
+      updatedCategoryId = category.id;
+      updatedCategoryNameSnapshot = category.name;
+    }
+  }
+
+  let updatedExpenseDate: Date | undefined = undefined;
+  let updatedBudgetCycleId: string | undefined = undefined;
+
+  const newDate = input.expenseDate ?? input.date;
+  if (newDate) {
+    updatedExpenseDate = newDate;
+    const cycle = await resolveBudgetCycle(userId, newDate);
+    updatedBudgetCycleId = cycle.id;
+  }
+
+  const updated = await prisma.expense.update({
+    where: { id },
+    data: {
+      ...(input.amount !== undefined ? { amount: input.amount } : {}),
+      ...(input.description !== undefined ? { description: input.description } : {}),
+      ...(updatedCategoryId !== undefined ? { categoryId: updatedCategoryId } : {}),
+      ...(updatedCategoryNameSnapshot !== undefined
+        ? { categoryNameSnapshot: updatedCategoryNameSnapshot }
+        : {}),
+      ...(updatedExpenseDate ? { expenseDate: updatedExpenseDate } : {}),
+      ...(updatedBudgetCycleId ? { budgetCycleId: updatedBudgetCycleId } : {}),
+    },
+    include: {
+      category: {
+        select: {
+          id: true,
+          name: true,
+          icon: true,
+          color: true,
+        },
+      },
+    },
+  });
+
+  return formatExpense(updated);
+}
+
+export async function removeExpense(
+  userId: string,
+  id: string,
+): Promise<boolean> {
+  const existing = await prisma.expense.findFirst({
+    where: {
+      id,
+      userId,
+    },
+  });
+
+  if (!existing) {
     return false;
   }
 
-  expenses.splice(index, 1);
+  await prisma.expense.delete({
+    where: { id },
+  });
+
   return true;
-}
-
-
-export function updateExpense(
-  id: number,
-  input: UpdateExpenseInput,
-): Expense | undefined {
-  const expense = expenses.find((item) => item.id === id);
-
-  if (!expense) {
-    return undefined;
-  }
-
-  Object.assign(expense, input);
-
-  return expense;
 }

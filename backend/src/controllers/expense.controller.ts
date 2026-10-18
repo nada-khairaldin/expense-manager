@@ -1,19 +1,35 @@
-
 import type { Request, Response } from "express";
 import {
   fetchExpenses,
   fetchExpenseById,
   addExpense,
   removeExpense,
-  updateExpense
+  updateExpense,
 } from "../services/expense.service.js";
 import { AppError } from "../errors/app-error.js";
-import { expenseQuerySchema, type CreateExpenseInput, type UpdateExpenseInput  } from "../schemas/expense.schema.js";
-import { fetchCategoryById } from "../services/category.service.js";
+import {
+  expenseQuerySchema,
+  type CreateExpenseInput,
+  type UpdateExpenseInput,
+} from "../schemas/expense.schema.js";
 
+function getUserId(req: Request): string {
+  if (!req.user?.id) {
+    throw new AppError(401, "Authentication required");
+  }
+  return req.user.id;
+}
 
+function getExpenseIdParam(req: Request): string {
+  const id = req.params.id;
+  if (!id || typeof id !== "string" || id.trim() === "") {
+    throw new AppError(400, "Invalid expense ID");
+  }
+  return id.trim();
+}
 
-export function getExpenses(req: Request, res: Response) {
+export async function getExpenses(req: Request, res: Response) {
+  const userId = getUserId(req);
   const result = expenseQuerySchema.safeParse(req.query);
 
   if (!result.success) {
@@ -28,20 +44,15 @@ export function getExpenses(req: Request, res: Response) {
     );
   }
 
-  const expenses = fetchExpenses(result.data);
-
+  const expenses = await fetchExpenses(userId, result.data);
   res.json(expenses);
 }
 
+export async function getExpenseById(req: Request, res: Response) {
+  const userId = getUserId(req);
+  const id = getExpenseIdParam(req);
 
-export function getExpenseById(req: Request, res: Response) {
-  const id = Number(req.params.id);
-
-  if (!Number.isInteger(id) || id <= 0) {
-    throw new AppError(400, "Invalid expense ID");
-  }
-
-  const expense = fetchExpenseById(id);
+  const expense = await fetchExpenseById(userId, id);
 
   if (!expense) {
     throw new AppError(404, "Expense not found");
@@ -50,53 +61,37 @@ export function getExpenseById(req: Request, res: Response) {
   res.json(expense);
 }
 
-export function createExpense(req: Request, res: Response) {
+export async function createExpense(req: Request, res: Response) {
+  const userId = getUserId(req);
   const input = req.body as CreateExpenseInput;
-  const expense = addExpense(input);
+  const expense = await addExpense(userId, input);
 
   res.status(201).json(expense);
 }
 
+export async function editExpense(req: Request, res: Response) {
+  const userId = getUserId(req);
+  const id = getExpenseIdParam(req);
+  const input = req.body as UpdateExpenseInput;
 
-export function deleteExpense(req: Request, res: Response) {
-  const id = Number(req.params.id);
+  const expense = await updateExpense(userId, id, input);
 
-  if (!Number.isInteger(id) || id <= 0) {
-    throw new AppError(400, "Invalid expense ID");
+  if (!expense) {
+    throw new AppError(404, "Expense not found");
   }
 
-  const deleted = removeExpense(id);
+  res.json(expense);
+}
+
+export async function deleteExpense(req: Request, res: Response) {
+  const userId = getUserId(req);
+  const id = getExpenseIdParam(req);
+
+  const deleted = await removeExpense(userId, id);
 
   if (!deleted) {
     throw new AppError(404, "Expense not found");
   }
 
   res.status(204).send();
-}
-
-export function editExpense(req: Request, res: Response) {
-  const id = Number(req.params.id);
-
-  if (!Number.isInteger(id) || id <= 0) {
-    throw new AppError(400, "Invalid expense ID");
-  }
-
-  const input = req.body as UpdateExpenseInput;
-
-  // Validate the category if the request changes it.
-  if (input.categoryId !== undefined) {
-    const category = fetchCategoryById(input.categoryId);
-
-    if (!category) {
-      throw new AppError(400, "Category not found");
-    }
-  }
-
-  const expense = updateExpense(id, input);
-
-  if (!expense) {
-    throw new AppError(404, "Expense not found");
-  }
-
-  res.json(expense);
 }

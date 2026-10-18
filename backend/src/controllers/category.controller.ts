@@ -12,18 +12,33 @@ import type {
   UpdateCategoryInput,
 } from "../schemas/category.schema.js";
 
-export function getCategories(_req: Request, res: Response) {
-  res.json(fetchCategories());
+function getUserId(req: Request): string {
+  if (!req.user?.id) {
+    throw new AppError(401, "Authentication required");
+  }
+  return req.user.id;
 }
 
-export function getCategoryById(req: Request, res: Response) {
-  const id = Number(req.params.id);
-
-  if (!Number.isInteger(id) || id <= 0) {
+function getCategoryIdParam(req: Request): string {
+  const id = req.params.id;
+  if (!id || typeof id !== "string" || id.trim() === "") {
     throw new AppError(400, "Invalid category ID");
   }
+  return id.trim();
+}
 
-  const category = fetchCategoryById(id);
+export async function getCategories(req: Request, res: Response) {
+  const userId = getUserId(req);
+  const includeArchived = req.query.includeArchived === "true";
+  const categories = await fetchCategories(userId, includeArchived);
+  res.json(categories);
+}
+
+export async function getCategoryById(req: Request, res: Response) {
+  const userId = getUserId(req);
+  const id = getCategoryIdParam(req);
+
+  const category = await fetchCategoryById(userId, id);
 
   if (!category) {
     throw new AppError(404, "Category not found");
@@ -32,22 +47,20 @@ export function getCategoryById(req: Request, res: Response) {
   res.json(category);
 }
 
-export function createCategory(req: Request, res: Response) {
+export async function createCategory(req: Request, res: Response) {
+  const userId = getUserId(req);
   const input = req.body as CreateCategoryInput;
-  const category = addCategory(input);
+  const category = await addCategory(userId, input);
 
   res.status(201).json(category);
 }
 
-export function editCategory(req: Request, res: Response) {
-  const id = Number(req.params.id);
-
-  if (!Number.isInteger(id) || id <= 0) {
-    throw new AppError(400, "Invalid category ID");
-  }
-
+export async function editCategory(req: Request, res: Response) {
+  const userId = getUserId(req);
+  const id = getCategoryIdParam(req);
   const input = req.body as UpdateCategoryInput;
-  const category = updateCategory(id, input);
+
+  const category = await updateCategory(userId, id, input);
 
   if (!category) {
     throw new AppError(404, "Category not found");
@@ -56,14 +69,11 @@ export function editCategory(req: Request, res: Response) {
   res.json(category);
 }
 
-export function deleteCategory(req: Request, res: Response) {
-  const id = Number(req.params.id);
+export async function deleteCategory(req: Request, res: Response) {
+  const userId = getUserId(req);
+  const id = getCategoryIdParam(req);
 
-  if (!Number.isInteger(id) || id <= 0) {
-    throw new AppError(400, "Invalid category ID");
-  }
-
-  const deleted = removeCategory(id);
+  const deleted = await removeCategory(userId, id);
 
   if (!deleted) {
     throw new AppError(404, "Category not found");
