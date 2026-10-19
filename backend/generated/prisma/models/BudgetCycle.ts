@@ -28,12 +28,10 @@ export type AggregateBudgetCycle = {
 
 export type BudgetCycleAvgAggregateOutputType = {
   budgetAmount: runtime.Decimal | null
-  incomeAmount: runtime.Decimal | null
 }
 
 export type BudgetCycleSumAggregateOutputType = {
   budgetAmount: runtime.Decimal | null
-  incomeAmount: runtime.Decimal | null
 }
 
 export type BudgetCycleMinAggregateOutputType = {
@@ -42,7 +40,6 @@ export type BudgetCycleMinAggregateOutputType = {
   startDate: Date | null
   endDate: Date | null
   budgetAmount: runtime.Decimal | null
-  incomeAmount: runtime.Decimal | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -53,7 +50,6 @@ export type BudgetCycleMaxAggregateOutputType = {
   startDate: Date | null
   endDate: Date | null
   budgetAmount: runtime.Decimal | null
-  incomeAmount: runtime.Decimal | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -64,7 +60,6 @@ export type BudgetCycleCountAggregateOutputType = {
   startDate: number
   endDate: number
   budgetAmount: number
-  incomeAmount: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -73,12 +68,10 @@ export type BudgetCycleCountAggregateOutputType = {
 
 export type BudgetCycleAvgAggregateInputType = {
   budgetAmount?: true
-  incomeAmount?: true
 }
 
 export type BudgetCycleSumAggregateInputType = {
   budgetAmount?: true
-  incomeAmount?: true
 }
 
 export type BudgetCycleMinAggregateInputType = {
@@ -87,7 +80,6 @@ export type BudgetCycleMinAggregateInputType = {
   startDate?: true
   endDate?: true
   budgetAmount?: true
-  incomeAmount?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -98,7 +90,6 @@ export type BudgetCycleMaxAggregateInputType = {
   startDate?: true
   endDate?: true
   budgetAmount?: true
-  incomeAmount?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -109,7 +100,6 @@ export type BudgetCycleCountAggregateInputType = {
   startDate?: true
   endDate?: true
   budgetAmount?: true
-  incomeAmount?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -207,7 +197,6 @@ export type BudgetCycleGroupByOutputType = {
   startDate: Date
   endDate: Date
   budgetAmount: runtime.Decimal
-  incomeAmount: runtime.Decimal | null
   createdAt: Date
   updatedAt: Date
   _count: BudgetCycleCountAggregateOutputType | null
@@ -241,7 +230,6 @@ export type BudgetCycleWhereInput = {
   startDate?: Prisma.DateTimeFilter<"BudgetCycle"> | Date | string
   endDate?: Prisma.DateTimeFilter<"BudgetCycle"> | Date | string
   budgetAmount?: Prisma.DecimalFilter<"BudgetCycle"> | runtime.Decimal | runtime.DecimalJsLike | number | string
-  incomeAmount?: Prisma.DecimalNullableFilter<"BudgetCycle"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFilter<"BudgetCycle"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"BudgetCycle"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -255,7 +243,6 @@ export type BudgetCycleOrderByWithRelationInput = {
   startDate?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
   budgetAmount?: Prisma.SortOrder
-  incomeAmount?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
@@ -273,7 +260,6 @@ export type BudgetCycleWhereUniqueInput = Prisma.AtLeast<{
   startDate?: Prisma.DateTimeFilter<"BudgetCycle"> | Date | string
   endDate?: Prisma.DateTimeFilter<"BudgetCycle"> | Date | string
   budgetAmount?: Prisma.DecimalFilter<"BudgetCycle"> | runtime.Decimal | runtime.DecimalJsLike | number | string
-  incomeAmount?: Prisma.DecimalNullableFilter<"BudgetCycle"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFilter<"BudgetCycle"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"BudgetCycle"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -287,7 +273,6 @@ export type BudgetCycleOrderByWithAggregationInput = {
   startDate?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
   budgetAmount?: Prisma.SortOrder
-  incomeAmount?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.BudgetCycleCountOrderByAggregateInput
@@ -306,7 +291,6 @@ export type BudgetCycleScalarWhereWithAggregatesInput = {
   startDate?: Prisma.DateTimeWithAggregatesFilter<"BudgetCycle"> | Date | string
   endDate?: Prisma.DateTimeWithAggregatesFilter<"BudgetCycle"> | Date | string
   budgetAmount?: Prisma.DecimalWithAggregatesFilter<"BudgetCycle"> | runtime.Decimal | runtime.DecimalJsLike | number | string
-  incomeAmount?: Prisma.DecimalNullableWithAggregatesFilter<"BudgetCycle"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"BudgetCycle"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"BudgetCycle"> | Date | string
 }
@@ -316,7 +300,6 @@ export type BudgetCycleCreateInput = {
   startDate: Date | string
   endDate: Date | string
   budgetAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
-  incomeAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutBudgetCyclesInput
@@ -330,7 +313,6 @@ export type BudgetCycleUncheckedCreateInput = {
   startDate: Date | string
   endDate: Date | string
   budgetAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
-  incomeAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   categoryBudgets?: Prisma.CategoryBudgetUncheckedCreateNestedManyWithoutBudgetCycleInput
@@ -342,7 +324,6 @@ export type BudgetCycleUpdateInput = {
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   budgetAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  incomeAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutBudgetCyclesNestedInput
@@ -356,7 +337,6 @@ export type BudgetCycleUncheckedUpdateInput = {
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   budgetAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  incomeAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   categoryBudgets?: Prisma.CategoryBudgetUncheckedUpdateManyWithoutBudgetCycleNestedInput
@@ -369,7 +349,6 @@ export type BudgetCycleCreateManyInput = {
   startDate: Date | string
   endDate: Date | string
   budgetAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
-  incomeAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -379,7 +358,6 @@ export type BudgetCycleUpdateManyMutationInput = {
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   budgetAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  incomeAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -390,7 +368,6 @@ export type BudgetCycleUncheckedUpdateManyInput = {
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   budgetAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  incomeAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -416,14 +393,12 @@ export type BudgetCycleCountOrderByAggregateInput = {
   startDate?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
   budgetAmount?: Prisma.SortOrder
-  incomeAmount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type BudgetCycleAvgOrderByAggregateInput = {
   budgetAmount?: Prisma.SortOrder
-  incomeAmount?: Prisma.SortOrder
 }
 
 export type BudgetCycleMaxOrderByAggregateInput = {
@@ -432,7 +407,6 @@ export type BudgetCycleMaxOrderByAggregateInput = {
   startDate?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
   budgetAmount?: Prisma.SortOrder
-  incomeAmount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -443,14 +417,12 @@ export type BudgetCycleMinOrderByAggregateInput = {
   startDate?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
   budgetAmount?: Prisma.SortOrder
-  incomeAmount?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type BudgetCycleSumOrderByAggregateInput = {
   budgetAmount?: Prisma.SortOrder
-  incomeAmount?: Prisma.SortOrder
 }
 
 export type BudgetCycleScalarRelationFilter = {
@@ -508,14 +480,6 @@ export type DecimalFieldUpdateOperationsInput = {
   divide?: runtime.Decimal | runtime.DecimalJsLike | number | string
 }
 
-export type NullableDecimalFieldUpdateOperationsInput = {
-  set?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  increment?: runtime.Decimal | runtime.DecimalJsLike | number | string
-  decrement?: runtime.Decimal | runtime.DecimalJsLike | number | string
-  multiply?: runtime.Decimal | runtime.DecimalJsLike | number | string
-  divide?: runtime.Decimal | runtime.DecimalJsLike | number | string
-}
-
 export type BudgetCycleCreateNestedOneWithoutCategoryBudgetsInput = {
   create?: Prisma.XOR<Prisma.BudgetCycleCreateWithoutCategoryBudgetsInput, Prisma.BudgetCycleUncheckedCreateWithoutCategoryBudgetsInput>
   connectOrCreate?: Prisma.BudgetCycleCreateOrConnectWithoutCategoryBudgetsInput
@@ -549,7 +513,6 @@ export type BudgetCycleCreateWithoutUserInput = {
   startDate: Date | string
   endDate: Date | string
   budgetAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
-  incomeAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   categoryBudgets?: Prisma.CategoryBudgetCreateNestedManyWithoutBudgetCycleInput
@@ -561,7 +524,6 @@ export type BudgetCycleUncheckedCreateWithoutUserInput = {
   startDate: Date | string
   endDate: Date | string
   budgetAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
-  incomeAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   categoryBudgets?: Prisma.CategoryBudgetUncheckedCreateNestedManyWithoutBudgetCycleInput
@@ -603,7 +565,6 @@ export type BudgetCycleScalarWhereInput = {
   startDate?: Prisma.DateTimeFilter<"BudgetCycle"> | Date | string
   endDate?: Prisma.DateTimeFilter<"BudgetCycle"> | Date | string
   budgetAmount?: Prisma.DecimalFilter<"BudgetCycle"> | runtime.Decimal | runtime.DecimalJsLike | number | string
-  incomeAmount?: Prisma.DecimalNullableFilter<"BudgetCycle"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFilter<"BudgetCycle"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"BudgetCycle"> | Date | string
 }
@@ -613,7 +574,6 @@ export type BudgetCycleCreateWithoutCategoryBudgetsInput = {
   startDate: Date | string
   endDate: Date | string
   budgetAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
-  incomeAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutBudgetCyclesInput
@@ -626,7 +586,6 @@ export type BudgetCycleUncheckedCreateWithoutCategoryBudgetsInput = {
   startDate: Date | string
   endDate: Date | string
   budgetAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
-  incomeAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutBudgetCycleInput
@@ -653,7 +612,6 @@ export type BudgetCycleUpdateWithoutCategoryBudgetsInput = {
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   budgetAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  incomeAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutBudgetCyclesNestedInput
@@ -666,7 +624,6 @@ export type BudgetCycleUncheckedUpdateWithoutCategoryBudgetsInput = {
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   budgetAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  incomeAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutBudgetCycleNestedInput
@@ -677,7 +634,6 @@ export type BudgetCycleCreateWithoutExpensesInput = {
   startDate: Date | string
   endDate: Date | string
   budgetAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
-  incomeAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutBudgetCyclesInput
@@ -690,7 +646,6 @@ export type BudgetCycleUncheckedCreateWithoutExpensesInput = {
   startDate: Date | string
   endDate: Date | string
   budgetAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
-  incomeAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   categoryBudgets?: Prisma.CategoryBudgetUncheckedCreateNestedManyWithoutBudgetCycleInput
@@ -717,7 +672,6 @@ export type BudgetCycleUpdateWithoutExpensesInput = {
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   budgetAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  incomeAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutBudgetCyclesNestedInput
@@ -730,7 +684,6 @@ export type BudgetCycleUncheckedUpdateWithoutExpensesInput = {
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   budgetAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  incomeAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   categoryBudgets?: Prisma.CategoryBudgetUncheckedUpdateManyWithoutBudgetCycleNestedInput
@@ -741,7 +694,6 @@ export type BudgetCycleCreateManyUserInput = {
   startDate: Date | string
   endDate: Date | string
   budgetAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
-  incomeAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -751,7 +703,6 @@ export type BudgetCycleUpdateWithoutUserInput = {
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   budgetAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  incomeAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   categoryBudgets?: Prisma.CategoryBudgetUpdateManyWithoutBudgetCycleNestedInput
@@ -763,7 +714,6 @@ export type BudgetCycleUncheckedUpdateWithoutUserInput = {
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   budgetAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  incomeAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   categoryBudgets?: Prisma.CategoryBudgetUncheckedUpdateManyWithoutBudgetCycleNestedInput
@@ -775,7 +725,6 @@ export type BudgetCycleUncheckedUpdateManyWithoutUserInput = {
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   budgetAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  incomeAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -826,7 +775,6 @@ export type BudgetCycleSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   startDate?: boolean
   endDate?: boolean
   budgetAmount?: boolean
-  incomeAmount?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -841,7 +789,6 @@ export type BudgetCycleSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   startDate?: boolean
   endDate?: boolean
   budgetAmount?: boolean
-  incomeAmount?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -853,7 +800,6 @@ export type BudgetCycleSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   startDate?: boolean
   endDate?: boolean
   budgetAmount?: boolean
-  incomeAmount?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -865,12 +811,11 @@ export type BudgetCycleSelectScalar = {
   startDate?: boolean
   endDate?: boolean
   budgetAmount?: boolean
-  incomeAmount?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type BudgetCycleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "startDate" | "endDate" | "budgetAmount" | "incomeAmount" | "createdAt" | "updatedAt", ExtArgs["result"]["budgetCycle"]>
+export type BudgetCycleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "startDate" | "endDate" | "budgetAmount" | "createdAt" | "updatedAt", ExtArgs["result"]["budgetCycle"]>
 export type BudgetCycleInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   categoryBudgets?: boolean | Prisma.BudgetCycle$categoryBudgetsArgs<ExtArgs>
@@ -897,7 +842,6 @@ export type $BudgetCyclePayload<ExtArgs extends runtime.Types.Extensions.Interna
     startDate: Date
     endDate: Date
     budgetAmount: runtime.Decimal
-    incomeAmount: runtime.Decimal | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["budgetCycle"]>
@@ -1331,7 +1275,6 @@ export interface BudgetCycleFieldRefs {
   readonly startDate: Prisma.FieldRef<"BudgetCycle", 'DateTime'>
   readonly endDate: Prisma.FieldRef<"BudgetCycle", 'DateTime'>
   readonly budgetAmount: Prisma.FieldRef<"BudgetCycle", 'Decimal'>
-  readonly incomeAmount: Prisma.FieldRef<"BudgetCycle", 'Decimal'>
   readonly createdAt: Prisma.FieldRef<"BudgetCycle", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"BudgetCycle", 'DateTime'>
 }

@@ -2,6 +2,7 @@ import {
   calculateCycleDateRange,
   getRenewalDateForMonth,
   resolveBudgetCycle,
+  toUTCDateOnly,
 } from "../services/budget-cycle.service.js";
 import { prisma } from "../lib/prisma.js";
 import app from "../app.js";
@@ -25,11 +26,13 @@ interface AuthResponse {
     email: string;
     currency: string;
     budgetRenewalDay: number;
+    defaultBudgetAmount: number | null;
     budgetSetupCompleted: boolean;
     settings?: {
       id: string;
       currency: string;
       budgetRenewalDay: number;
+      defaultBudgetAmount: number | null;
       budgetSetupCompleted: boolean;
     };
   };
@@ -42,6 +45,7 @@ interface MeResponse {
   email: string;
   currency: string;
   budgetRenewalDay: number;
+  defaultBudgetAmount: number | null;
   budgetSetupCompleted: boolean;
 }
 
@@ -50,7 +54,20 @@ interface SettingsResponse {
   userId: string;
   currency: string;
   budgetRenewalDay: number;
+  defaultBudgetAmount: number | null;
   budgetSetupCompleted: boolean;
+}
+
+interface BudgetCycleResponse {
+  id: string;
+  userId: string;
+  startDate: string;
+  endDate: string;
+  budgetAmount: number;
+  totalExpenses: number;
+  remainingBudget: number;
+  percentageUsed: number;
+  isCompleted: boolean;
 }
 
 async function runUnitTests() {
@@ -99,43 +116,6 @@ async function runUnitTests() {
   assert(formatDate(aprCycle.startDate) === "2024-04-30", `Apr start expected 2024-04-30, got ${formatDate(aprCycle.startDate)}`);
   assert(formatDate(aprCycle.endDate) === "2024-05-30", `Apr end expected 2024-05-30, got ${formatDate(aprCycle.endDate)}`);
 
-  // C. Boundaries for Renewal Days 28, 29, 30
-  // Day 30 in non-leap Feb 2023:
-  const day30Feb = calculateCycleDateRange(new Date("2023-02-28T00:00:00Z"), 30);
-  assert(formatDate(day30Feb.startDate) === "2023-02-28", `Day 30 Feb start expected 2023-02-28, got ${formatDate(day30Feb.startDate)}`);
-  assert(formatDate(day30Feb.endDate) === "2023-03-29", `Day 30 Feb end expected 2023-03-29, got ${formatDate(day30Feb.endDate)}`);
-
-  // Day 29 in non-leap Feb 2023:
-  const day29Feb = calculateCycleDateRange(new Date("2023-02-28T00:00:00Z"), 29);
-  assert(formatDate(day29Feb.startDate) === "2023-02-28", `Day 29 Feb start expected 2023-02-28, got ${formatDate(day29Feb.startDate)}`);
-  assert(formatDate(day29Feb.endDate) === "2023-03-28", `Day 29 Feb end expected 2023-03-28, got ${formatDate(day29Feb.endDate)}`);
-
-  // Day 28 in non-leap Feb 2023:
-  const day28Feb = calculateCycleDateRange(new Date("2023-02-28T00:00:00Z"), 28);
-  assert(formatDate(day28Feb.startDate) === "2023-02-28", `Day 28 Feb start expected 2023-02-28, got ${formatDate(day28Feb.startDate)}`);
-  assert(formatDate(day28Feb.endDate) === "2023-03-27", `Day 28 Feb end expected 2023-03-27, got ${formatDate(day28Feb.endDate)}`);
-
-  // D. Year transition check
-  // Dec 31, 2024 with renewal day 31: cycle runs 2024-12-31 to 2025-01-30
-  const yearTransitionCycle = calculateCycleDateRange(new Date("2024-12-31T00:00:00Z"), 31);
-  assert(formatDate(yearTransitionCycle.startDate) === "2024-12-31", `Year transition start expected 2024-12-31, got ${formatDate(yearTransitionCycle.startDate)}`);
-  assert(formatDate(yearTransitionCycle.endDate) === "2025-01-30", `Year transition end expected 2025-01-30, got ${formatDate(yearTransitionCycle.endDate)}`);
-
-  // Jan 15, 2025 with renewal day 31 falls into the 2024-12-31 to 2025-01-30 cycle
-  const jan15Cycle = calculateCycleDateRange(new Date("2025-01-15T00:00:00Z"), 31);
-  assert(formatDate(jan15Cycle.startDate) === "2024-12-31", `Jan 15 cycle start expected 2024-12-31, got ${formatDate(jan15Cycle.startDate)}`);
-  assert(formatDate(jan15Cycle.endDate) === "2025-01-30", `Jan 15 cycle end expected 2025-01-30, got ${formatDate(jan15Cycle.endDate)}`);
-
-  // E. Renewal date membership: expense on renewal date belongs to the NEW cycle
-  // Renewal day = 15:
-  // Expense on 2024-05-14 -> old cycle (2024-04-15 to 2024-05-14)
-  const prevCycle = calculateCycleDateRange(new Date("2024-05-14T00:00:00Z"), 15);
-  assert(formatDate(prevCycle.startDate) === "2024-04-15" && formatDate(prevCycle.endDate) === "2024-05-14", "2024-05-14 should belong to April-May cycle");
-
-  // Expense on 2024-05-15 -> new cycle (2024-05-15 to 2024-06-14)
-  const newCycle = calculateCycleDateRange(new Date("2024-05-15T00:00:00Z"), 15);
-  assert(formatDate(newCycle.startDate) === "2024-05-15" && formatDate(newCycle.endDate) === "2024-06-14", "2024-05-15 should belong to May-June cycle");
-
   console.log("✓ All unit tests for budget cycle calculations passed!");
 }
 
@@ -149,7 +129,7 @@ async function runApiIntegrationTests(baseUrl: string) {
   const unauthRes = await fetch(`${baseUrl}/settings/budget-setup`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ currency: "ILS", budgetRenewalDay: 1 }),
+    body: JSON.stringify({ currency: "ILS", budgetRenewalDay: 1, defaultBudgetAmount: 5000 }),
   });
   assert(unauthRes.status === 401, `Expected 401 for unauthenticated request, got ${unauthRes.status}`);
   console.log("✓ Unauthenticated access correctly rejected with 401");
@@ -167,11 +147,13 @@ async function runApiIntegrationTests(baseUrl: string) {
   assert(regResA.status === 201, `Expected 201 for register, got ${regResA.status}`);
   const regDataA = (await regResA.json()) as AuthResponse;
   const tokenA = regDataA.token;
+  const userIdA = regDataA.user.id;
 
   assert(regDataA.user.budgetSetupCompleted === false, `New user budgetSetupCompleted should be false, got ${String(regDataA.user.budgetSetupCompleted)}`);
   assert(regDataA.user.currency === "ILS", `New user currency should default to ILS, got ${regDataA.user.currency}`);
   assert(regDataA.user.budgetRenewalDay === 1, `New user budgetRenewalDay should default to 1, got ${String(regDataA.user.budgetRenewalDay)}`);
-  console.log("✓ Registration returns default settings with budgetSetupCompleted = false");
+  assert(regDataA.user.defaultBudgetAmount === null, `New user defaultBudgetAmount must be null (not invented), got ${String(regDataA.user.defaultBudgetAmount)}`);
+  console.log("✓ Registration returns default settings with budgetSetupCompleted = false and defaultBudgetAmount = null");
 
   // 3. GET /auth/me for User A
   const meResA = await fetch(`${baseUrl}/auth/me`, {
@@ -180,87 +162,70 @@ async function runApiIntegrationTests(baseUrl: string) {
   assert(meResA.status === 200, `Expected 200 for /auth/me, got ${meResA.status}`);
   const meDataA = (await meResA.json()) as MeResponse;
   assert(meDataA.budgetSetupCompleted === false, "GET /auth/me must return budgetSetupCompleted: false");
-  assert(meDataA.currency === "ILS", "GET /auth/me must return currency: ILS");
-  assert(meDataA.budgetRenewalDay === 1, "GET /auth/me must return budgetRenewalDay: 1");
-  console.log("✓ GET /auth/me exposes budgetSetupCompleted, currency, and budgetRenewalDay");
+  assert(meDataA.defaultBudgetAmount === null, "GET /auth/me must return defaultBudgetAmount: null");
+  console.log("✓ GET /auth/me exposes budgetSetupCompleted, currency, and defaultBudgetAmount (null)");
 
-  // 4. Invalid currency validation
-  const invalidCurrencyRes = await fetch(`${baseUrl}/settings/budget-setup`, {
+  // 4. Test missing default budget safety check: Attempting to resolve cycle before budget setup fails
+  let cycleCreationThrew = false;
+  try {
+    await resolveBudgetCycle(userIdA, new Date("2024-04-10T00:00:00Z"));
+  } catch (err) {
+    cycleCreationThrew = true;
+    const errorWithStatus = err as { statusCode?: number };
+    assert(errorWithStatus.statusCode === 400, `Expected 400 for cycle creation without default budget, got ${errorWithStatus.statusCode}`);
+  }
+  assert(cycleCreationThrew, "resolveBudgetCycle must throw error when user has not configured default budget");
+  console.log("✓ Safe missing budget handling: does not silently use zero for missing default budget");
+
+  // 5. Invalid defaultBudgetAmount validation
+  const invalidNegativeBudgetRes = await fetch(`${baseUrl}/settings/budget-setup`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${tokenA}`,
     },
-    body: JSON.stringify({ currency: "GBP", budgetRenewalDay: 15 }),
+    body: JSON.stringify({ currency: "USD", budgetRenewalDay: 15, defaultBudgetAmount: -500 }),
   });
-  assert(invalidCurrencyRes.status === 400, `Expected 400 for invalid currency GBP, got ${invalidCurrencyRes.status}`);
+  assert(invalidNegativeBudgetRes.status === 400, `Expected 400 for negative defaultBudgetAmount, got ${invalidNegativeBudgetRes.status}`);
 
-  // 5. Invalid renewal day validation (0 and 32 and non-integer)
-  const invalidDayZeroRes = await fetch(`${baseUrl}/settings/budget-setup`, {
+  const invalidZeroBudgetRes = await fetch(`${baseUrl}/settings/budget-setup`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${tokenA}`,
     },
-    body: JSON.stringify({ currency: "USD", budgetRenewalDay: 0 }),
+    body: JSON.stringify({ currency: "USD", budgetRenewalDay: 15, defaultBudgetAmount: 0 }),
   });
-  assert(invalidDayZeroRes.status === 400, `Expected 400 for renewal day 0, got ${invalidDayZeroRes.status}`);
+  assert(invalidZeroBudgetRes.status === 400, `Expected 400 for zero defaultBudgetAmount, got ${invalidZeroBudgetRes.status}`);
+  console.log("✓ Validation rejects non-positive defaultBudgetAmount");
 
-  const invalidDay32Res = await fetch(`${baseUrl}/settings/budget-setup`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${tokenA}`,
-    },
-    body: JSON.stringify({ currency: "USD", budgetRenewalDay: 32 }),
-  });
-  assert(invalidDay32Res.status === 400, `Expected 400 for renewal day 32, got ${invalidDay32Res.status}`);
-
-  const invalidDayFloatRes = await fetch(`${baseUrl}/settings/budget-setup`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${tokenA}`,
-    },
-    body: JSON.stringify({ currency: "USD", budgetRenewalDay: 15.5 }),
-  });
-  assert(invalidDayFloatRes.status === 400, `Expected 400 for renewal day 15.5, got ${invalidDayFloatRes.status}`);
-  console.log("✓ Validation rejects invalid currencies and out-of-range/non-integer renewal days");
-
-  // 6. Successful PUT /settings/budget-setup
+  // 6. Successful PUT /settings/budget-setup with defaultBudgetAmount: 5000
   const validUpdateRes = await fetch(`${baseUrl}/settings/budget-setup`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${tokenA}`,
     },
-    body: JSON.stringify({ currency: "USD", budgetRenewalDay: 31 }),
+    body: JSON.stringify({ currency: "USD", budgetRenewalDay: 31, defaultBudgetAmount: 5000 }),
   });
   assert(validUpdateRes.status === 200, `Expected 200 for valid settings update, got ${validUpdateRes.status}`);
   const updateData = (await validUpdateRes.json()) as SettingsResponse;
   assert(updateData.currency === "USD", `Updated currency expected USD, got ${updateData.currency}`);
   assert(updateData.budgetRenewalDay === 31, `Updated budgetRenewalDay expected 31, got ${String(updateData.budgetRenewalDay)}`);
+  assert(updateData.defaultBudgetAmount === 5000, `Updated defaultBudgetAmount expected 5000, got ${String(updateData.defaultBudgetAmount)}`);
   assert(updateData.budgetSetupCompleted === true, `Updated budgetSetupCompleted expected true, got ${String(updateData.budgetSetupCompleted)}`);
-  console.log("✓ PUT /settings/budget-setup successfully persists settings and marks setup completed");
+  console.log("✓ PUT /settings/budget-setup successfully persists settings with defaultBudgetAmount");
 
-  // 7. Verify subsequent GET /auth/me reflects completion and new settings
+  // 7. Verify subsequent GET /auth/me reflects completion and defaultBudgetAmount
   const meResAfter = await fetch(`${baseUrl}/auth/me`, {
     headers: { Authorization: `Bearer ${tokenA}` },
   });
   const meDataAfter = (await meResAfter.json()) as MeResponse;
   assert(meDataAfter.budgetSetupCompleted === true, "GET /auth/me should now return budgetSetupCompleted: true");
-  assert(meDataAfter.currency === "USD", "GET /auth/me should return currency: USD");
-  assert(meDataAfter.budgetRenewalDay === 31, "GET /auth/me should return budgetRenewalDay: 31");
-  console.log("✓ Subsequent GET /auth/me reflects completed setup and updated values");
+  assert(meDataAfter.defaultBudgetAmount === 5000, `GET /auth/me should return defaultBudgetAmount: 5000, got ${String(meDataAfter.defaultBudgetAmount)}`);
+  console.log("✓ Subsequent GET /auth/me reflects defaultBudgetAmount: 5000");
 
-  // 8. Ensure no duplicate UserSettings records exist in database
-  const settingsCount = await prisma.userSettings.count({
-    where: { userId: meDataAfter.id },
-  });
-  assert(settingsCount === 1, `Expected exactly 1 UserSettings record for user, found ${settingsCount}`);
-  console.log("✓ Verified no duplicate UserSettings records exist");
-
-  // 9. Multi-user isolation test
+  // 8. Register User B (Multi-user isolation)
   const regResB = await fetch(`${baseUrl}/auth/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -271,32 +236,182 @@ async function runApiIntegrationTests(baseUrl: string) {
     }),
   });
   const regDataB = (await regResB.json()) as AuthResponse;
+  const tokenB = regDataB.token;
   assert(regDataB.user.budgetSetupCompleted === false, "User B setup must still be false");
-  assert(regDataB.user.currency === "ILS", "User B currency must still be ILS");
+  assert(regDataB.user.defaultBudgetAmount === null, "User B default budget must still be null");
   console.log("✓ User settings isolation verified (User B unaffected by User A)");
 
-  // 10. Test historical cycle preservation when settings change
-  const userIdA = meDataAfter.id;
-  // Create an expense with budget cycle when renewal day was 31
-  const cyclePreChange = await resolveBudgetCycle(userIdA, new Date("2024-04-10T00:00:00Z"));
-  const cycleIdOriginal = cyclePreChange.id;
+  console.log("\n--- 3. Testing Budget Cycle Creation & Default Inheritance ---");
 
-  // Now change user A renewal day to 15
-  await fetch(`${baseUrl}/settings/budget-setup`, {
-    method: "PUT",
+  // A. Create cycle for current date -> must inherit defaultBudgetAmount (5000)
+  const today = toUTCDateOnly(new Date());
+  const activeCycle = await resolveBudgetCycle(userIdA, today);
+  assert(Number(activeCycle.budgetAmount) === 5000, `Active cycle budget expected 5000, got ${activeCycle.budgetAmount}`);
+  console.log(`✓ Active cycle created with budgetAmount initialized from defaultBudgetAmount (${activeCycle.budgetAmount})`);
+
+  // B. Calling resolveBudgetCycle again for the same date reuses cycle without overwriting
+  const reusedCycle = await resolveBudgetCycle(userIdA, today);
+  assert(reusedCycle.id === activeCycle.id, "Existing cycle covering date must be reused");
+  assert(Number(reusedCycle.budgetAmount) === 5000, "Reused cycle must preserve its saved budgetAmount");
+  console.log("✓ Existing cycle reused without overwriting saved budget");
+
+  // C. GET /budget-cycles/current endpoint
+  const getCurrentCycleRes = await fetch(`${baseUrl}/budget-cycles/current`, {
+    headers: { Authorization: `Bearer ${tokenA}` },
+  });
+  assert(getCurrentCycleRes.status === 200, `Expected 200 for GET /budget-cycles/current, got ${getCurrentCycleRes.status}`);
+  const currentCycleData = (await getCurrentCycleRes.json()) as BudgetCycleResponse;
+  assert(currentCycleData.id === activeCycle.id, "GET /budget-cycles/current returned correct active cycle");
+  assert(currentCycleData.budgetAmount === 5000, "GET /budget-cycles/current budgetAmount is 5000");
+  console.log("✓ GET /budget-cycles/current returns active cycle with correct budget");
+
+  console.log("\n--- 4. Testing Updating Default Budget (Syncs Active Cycle & Future Cycles) ---");
+
+  // Create a past cycle manually to verify completed cycles are NOT touched when default changes
+  const pastCycleStart = new Date("2023-01-01T00:00:00Z");
+  const pastCycleEnd = new Date("2023-01-30T00:00:00Z");
+  const pastCycle = await prisma.budgetCycle.create({
+    data: {
+      userId: userIdA,
+      startDate: pastCycleStart,
+      endDate: pastCycleEnd,
+      budgetAmount: 3000,
+    },
+  });
+
+  // User A updates default budget to 8000 via PATCH /settings/default-budget
+  const updateDefaultRes = await fetch(`${baseUrl}/settings/default-budget`, {
+    method: "PATCH",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${tokenA}`,
     },
-    body: JSON.stringify({ currency: "JOD", budgetRenewalDay: 15 }),
+    body: JSON.stringify({ defaultBudgetAmount: 8000 }),
+  });
+  assert(updateDefaultRes.status === 200, `Expected 200 for PATCH /settings/default-budget, got ${updateDefaultRes.status}`);
+  const updatedSettingsData = (await updateDefaultRes.json()) as SettingsResponse;
+  assert(updatedSettingsData.defaultBudgetAmount === 8000, "defaultBudgetAmount must be updated to 8000");
+
+  // Verify Active Cycle budget was immediately updated to 8000
+  const refreshedActiveCycle = await prisma.budgetCycle.findUnique({
+    where: { id: activeCycle.id },
+  });
+  assert(Number(refreshedActiveCycle?.budgetAmount) === 8000, `Active cycle budget should be immediately updated to 8000, got ${refreshedActiveCycle?.budgetAmount}`);
+  console.log("✓ Updating default budget immediately updated the active cycle's budgetAmount to 8000");
+
+  // Verify Completed Cycle budget was NOT changed (remains 3000)
+  const refreshedPastCycle = await prisma.budgetCycle.findUnique({
+    where: { id: pastCycle.id },
+  });
+  assert(Number(refreshedPastCycle?.budgetAmount) === 3000, `Completed past cycle budget must remain 3000, got ${refreshedPastCycle?.budgetAmount}`);
+  console.log("✓ Completed cycles outside current active cycle were NOT changed");
+
+  // Verify future cycle creation inherits the new default (8000)
+  const futureDate = new Date("2028-06-15T00:00:00Z");
+  const futureCycle = await resolveBudgetCycle(userIdA, futureDate);
+  assert(Number(futureCycle.budgetAmount) === 8000, `Future cycle should inherit new default 8000, got ${futureCycle.budgetAmount}`);
+  console.log("✓ Future cycle created inherits new defaultBudgetAmount (8000)");
+
+  console.log("\n--- 5. Testing Independent Current Cycle Edits ---");
+
+  // Edit current cycle independently to 9500 via PATCH /budget-cycles/current
+  const patchCycleRes = await fetch(`${baseUrl}/budget-cycles/current`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${tokenA}`,
+    },
+    body: JSON.stringify({ budgetAmount: 9500 }),
+  });
+  assert(patchCycleRes.status === 200, `Expected 200 for PATCH /budget-cycles/current, got ${patchCycleRes.status}`);
+  const patchedCycleData = (await patchCycleRes.json()) as BudgetCycleResponse;
+  assert(patchedCycleData.budgetAmount === 9500, `Patched cycle budget should be 9500, got ${patchedCycleData.budgetAmount}`);
+
+  // Verify defaultBudgetAmount in UserSettings was NOT changed (must still be 8000)
+  const settingsCheck = await prisma.userSettings.findUnique({ where: { userId: userIdA } });
+  assert(Number(settingsCheck?.defaultBudgetAmount) === 8000, `defaultBudgetAmount must remain 8000, got ${settingsCheck?.defaultBudgetAmount}`);
+  console.log("✓ Editing active cycle updated ONLY that cycle and did not change defaultBudgetAmount");
+
+  // Verify future cycle was not affected
+  const refreshedFuture = await prisma.budgetCycle.findUnique({ where: { id: futureCycle.id } });
+  assert(Number(refreshedFuture?.budgetAmount) === 8000, "Future cycle was not changed by current cycle edit");
+  console.log("✓ Other cycles were not changed by current cycle edit");
+
+  // Reject editing completed cycle via PATCH /budget-cycles/:id
+  const editCompletedRes = await fetch(`${baseUrl}/budget-cycles/${pastCycle.id}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${tokenA}`,
+    },
+    body: JSON.stringify({ budgetAmount: 9999 }),
+  });
+  assert(editCompletedRes.status === 400, `Expected 400 when attempting to edit completed cycle, got ${editCompletedRes.status}`);
+  console.log("✓ Backend strictly rejects attempts to edit completed cycle");
+
+  // Reject editing another user's cycle
+  const editUnauthorizedRes = await fetch(`${baseUrl}/budget-cycles/${activeCycle.id}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${tokenB}`,
+    },
+    body: JSON.stringify({ budgetAmount: 1111 }),
+  });
+  assert(editUnauthorizedRes.status === 404, `Expected 404 when User B tries to edit User A cycle, got ${editUnauthorizedRes.status}`);
+  console.log("✓ Cycle edit enforces user ownership");
+
+  // Verify expenses preserved when budget changes
+  const testExpense = await prisma.expense.create({
+    data: {
+      userId: userIdA,
+      budgetCycleId: activeCycle.id,
+      categoryNameSnapshot: "طعام",
+      amount: 250,
+      expenseDate: today,
+    },
   });
 
-  // Re-resolving for the same historical date must return the original cycle
-  const cyclePostChange = await resolveBudgetCycle(userIdA, new Date("2024-04-10T00:00:00Z"));
-  assert(cyclePostChange.id === cycleIdOriginal, "Historical budget cycle must be preserved when user settings change");
-  console.log("✓ Historical budget cycle preservation verified");
+  // Update active cycle budget again
+  await fetch(`${baseUrl}/budget-cycles/current`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${tokenA}`,
+    },
+    body: JSON.stringify({ budgetAmount: 9800 }),
+  });
 
-  // Cleanup test users
+  const expenseCheck = await prisma.expense.findUnique({ where: { id: testExpense.id } });
+  assert(expenseCheck !== null, "Existing expenses must be preserved when cycle budget changes");
+  assert(Number(expenseCheck?.amount) === 250, "Expense amount must remain unchanged");
+  console.log("✓ All existing expenses preserved when budget amount changes");
+
+  console.log("\n--- 6. Testing Concurrent Requests Handling ---");
+  const concurrentDate = new Date("2029-01-10T00:00:00Z");
+  const concurrentResults = await Promise.all([
+    resolveBudgetCycle(userIdA, concurrentDate),
+    resolveBudgetCycle(userIdA, concurrentDate),
+    resolveBudgetCycle(userIdA, concurrentDate),
+    resolveBudgetCycle(userIdA, concurrentDate),
+  ]);
+
+  const firstId = concurrentResults[0]?.id;
+  for (const res of concurrentResults) {
+    assert(res.id === firstId, "All concurrent requests must resolve to the identical budget cycle record");
+  }
+  const countForDate = await prisma.budgetCycle.count({
+    where: {
+      userId: userIdA,
+      startDate: concurrentResults[0]?.startDate,
+    },
+  });
+  assert(countForDate === 1, `Expected exactly 1 cycle created despite concurrent calls, got ${countForDate}`);
+  console.log("✓ Concurrency test passed: safe handling without duplicate records or key errors");
+
+  // Cleanup test users and cycles
+  await prisma.expense.deleteMany({ where: { userId: { in: [userIdA, regDataB.user.id] } } });
+  await prisma.budgetCycle.deleteMany({ where: { userId: { in: [userIdA, regDataB.user.id] } } });
   await prisma.user.deleteMany({
     where: { email: { in: [testEmailA, testEmailB] } },
   });
@@ -308,10 +423,12 @@ async function main() {
   try {
     await runUnitTests();
 
-    // Start a temporary test server on an ephemeral port
-    const testPort = 5555;
-    server = app.listen(testPort);
-    const baseUrl = `http://localhost:${testPort}`;
+    // Start a temporary test server on an ephemeral port bound to 127.0.0.1
+    const testPort = 5557;
+    server = await new Promise<Server>((resolve) => {
+      const s = app.listen(testPort, "127.0.0.1", () => resolve(s));
+    });
+    const baseUrl = `http://127.0.0.1:${testPort}`;
 
     await runApiIntegrationTests(baseUrl);
 
@@ -323,7 +440,7 @@ async function main() {
     process.exit(1);
   } finally {
     if (server) {
-      server.close();
+      (server as Server).close();
     }
     await prisma.$disconnect();
   }

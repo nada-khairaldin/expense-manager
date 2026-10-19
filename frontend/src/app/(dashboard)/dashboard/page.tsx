@@ -12,19 +12,71 @@ import { QuickActions } from "@/components/dashboard/QuickActions";
 import { useAddExpense } from "@/components/layout/DashboardShell";
 import { StatCard } from "@/components/ui/StatCard";
 import { Badge } from "@/components/ui/Badge";
+import { useAuth } from "@/features/auth/AuthContext";
+import { getCurrentBudgetCycleApi } from "@/features/auth/api";
+import { type BudgetCycle } from "@/features/auth/types";
+import { EditCycleBudgetModal } from "@/components/budget/EditCycleBudgetModal";
 import {
   Wallet,
   Receipt,
   PiggyBank,
   ShieldCheck,
   AlertTriangle,
+  Edit3,
 } from "lucide-react";
 
 export default function DashboardPage() {
+  const { token } = useAuth();
   const [selectedPeriod, setSelectedPeriod] = React.useState<"current" | "previous">("current");
   const { openAddExpense } = useAddExpense();
 
+  const [activeCycle, setActiveCycle] = React.useState<BudgetCycle | null>(null);
+  const [isEditCycleModalOpen, setIsEditCycleModalOpen] = React.useState(false);
+
+  const loadCycle = React.useCallback(() => {
+    if (!token) return;
+    getCurrentBudgetCycleApi(token)
+      .then((cycle) => {
+        setActiveCycle(cycle);
+      })
+      .catch(() => {});
+  }, [token]);
+
+  React.useEffect(() => {
+    let isMounted = true;
+    if (!token) return;
+    getCurrentBudgetCycleApi(token)
+      .then((cycle) => {
+        if (isMounted) setActiveCycle(cycle);
+      })
+      .catch(() => {});
+    return () => {
+      isMounted = false;
+    };
+  }, [token]);
+
   const data = dashboardPeriods[selectedPeriod];
+
+  // If in "current" period and we have active cycle from server, use its verified financial metrics
+  const effectiveBudget =
+    selectedPeriod === "current" && activeCycle
+      ? activeCycle.budgetAmount
+      : data.budgetAmount;
+
+  const effectiveTotalExpenses =
+    selectedPeriod === "current" && activeCycle && activeCycle.totalExpenses > 0
+      ? activeCycle.totalExpenses
+      : data.totalExpenses;
+
+  const effectiveRemaining =
+    selectedPeriod === "current" && activeCycle
+      ? Math.max(0, effectiveBudget - effectiveTotalExpenses)
+      : data.remainingBudget;
+
+  const effectivePercentageUsed =
+    effectiveBudget > 0
+      ? Number(((effectiveTotalExpenses / effectiveBudget) * 100).toFixed(1))
+      : 0;
 
   return (
     <div className="space-y-6">
@@ -43,7 +95,7 @@ export default function DashboardPage() {
             </span>
           </div>
           <p className="text-xs text-text-secondary">
-            متابعة دقيقة للدخل، المصروفات، وحالة الميزانية خلال {data.periodDateRange}
+            متابعة دقيقة للميزانية، المصروفات، والمتبقي خلال {data.periodDateRange}
           </p>
         </div>
 
@@ -60,40 +112,56 @@ export default function DashboardPage() {
 
       {/* 3. Four Financial Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-        {/* Card 1: الدخل الشهري */}
+        {/* Card 1: ميزانية الدورة */}
         <StatCard
-          title="الدخل الشهري المعتمد"
-          value={formatCurrency(data.income)}
+          title="ميزانية دورة الميزانية"
+          value={formatCurrency(effectiveBudget)}
           icon={Wallet}
           iconColorClass="text-brand-teal"
           iconBgClass="bg-brand-teal-light dark:bg-brand-teal/20"
           badge={
-            <Badge variant="success" size="sm">
-              دخل ثابت
-            </Badge>
+            selectedPeriod === "current" ? (
+              <button
+                type="button"
+                onClick={() => setIsEditCycleModalOpen(true)}
+                className="inline-flex items-center gap-1 text-[11px] font-bold text-brand-teal hover:underline py-0.5 px-2 rounded-lg bg-brand-teal/10 hover:bg-brand-teal/20 transition-colors"
+                title="تعديل ميزانية هذه الدورة فقط"
+              >
+                <Edit3 className="w-3 h-3" />
+                <span>تعديل الميزانية</span>
+              </button>
+            ) : (
+              <Badge variant="neutral" size="sm">
+                دورة منتهية
+              </Badge>
+            )
           }
-          hint="الدخل المخصص لدورة الميزانية"
+          hint={
+            selectedPeriod === "current"
+              ? "الميزانية المعتمدة للدورة النشطة الحالية"
+              : "الميزانية المسجلة للدورة السابقة"
+          }
         />
 
         {/* Card 2: إجمالي المصروفات */}
         <StatCard
           title="إجمالي المصروفات"
-          value={formatCurrency(data.totalExpenses)}
-          secondaryValue={`(${data.budgetPercentageUsed}%)`}
+          value={formatCurrency(effectiveTotalExpenses)}
+          secondaryValue={`(${effectivePercentageUsed}%)`}
           icon={Receipt}
           iconColorClass="text-brand-primary dark:text-foreground"
           iconBgClass="bg-brand-primary/10 dark:bg-brand-primary/30"
-          progressPercentage={data.budgetPercentageUsed}
+          progressPercentage={effectivePercentageUsed}
           progressColorClass={
-            data.budgetPercentageUsed >= 85 ? "bg-status-warning" : "bg-brand-teal"
+            effectivePercentageUsed >= 85 ? "bg-status-warning" : "bg-brand-teal"
           }
-          hint={`مجموع الإنفاق حتى تاريخ اليوم`}
+          hint="مجموع الإنفاق المسجل خلال الدورة"
           badge={
             <Badge
-              variant={data.budgetPercentageUsed >= 85 ? "warning" : "neutral"}
+              variant={effectivePercentageUsed >= 85 ? "warning" : "neutral"}
               size="sm"
             >
-              {data.budgetPercentageUsed >= 85 ? "استهلاك مرتفع" : "ضمن الخطة"}
+              {effectivePercentageUsed >= 85 ? "استهلاك مرتفع" : "ضمن الخطة"}
             </Badge>
           }
         />
@@ -101,12 +169,12 @@ export default function DashboardPage() {
         {/* Card 3: المتبقي من الميزانية */}
         <StatCard
           title="المتبقي من الميزانية"
-          value={formatCurrency(data.remainingBudget)}
-          secondaryValue={`(${(100 - data.budgetPercentageUsed).toFixed(1)}%)`}
+          value={formatCurrency(effectiveRemaining)}
+          secondaryValue={`(${(Math.max(0, 100 - effectivePercentageUsed)).toFixed(1)}%)`}
           icon={PiggyBank}
           iconColorClass="text-brand-gold"
           iconBgClass="bg-brand-gold-light dark:bg-brand-gold/20"
-          progressPercentage={100 - data.budgetPercentageUsed}
+          progressPercentage={Math.max(0, 100 - effectivePercentageUsed)}
           progressColorClass="bg-brand-gold"
           hint="الفائض المتاح للصرف حتى نهاية الدورة"
           badge={
@@ -119,25 +187,25 @@ export default function DashboardPage() {
         {/* Card 4: حالة الميزانية */}
         <StatCard
           title="حالة الميزانية العامة"
-          value={data.budgetStatusLevel === "excellent" ? "مستقرة وممتازة" : "مرتفعة - انتبه"}
-          icon={data.budgetStatusLevel === "excellent" ? ShieldCheck : AlertTriangle}
+          value={effectivePercentageUsed < 85 ? "مستقرة وممتازة" : "مرتفعة - انتبه"}
+          icon={effectivePercentageUsed < 85 ? ShieldCheck : AlertTriangle}
           iconColorClass={
-            data.budgetStatusLevel === "excellent"
+            effectivePercentageUsed < 85
               ? "text-brand-teal"
               : "text-status-warning"
           }
           iconBgClass={
-            data.budgetStatusLevel === "excellent"
+            effectivePercentageUsed < 85
               ? "bg-brand-teal-light dark:bg-brand-teal/20"
               : "bg-status-warning-bg"
           }
           badge={
             <Badge
-              variant={data.budgetStatusLevel === "excellent" ? "success" : "warning"}
+              variant={effectivePercentageUsed < 85 ? "success" : "warning"}
               size="sm"
               dot
             >
-              {data.budgetStatusLevel === "excellent" ? "ضمن الخطة" : "قريب من السقف"}
+              {effectivePercentageUsed < 85 ? "ضمن الخطة" : "قريب من السقف"}
             </Badge>
           }
           hint={data.budgetNotes}
@@ -161,6 +229,17 @@ export default function DashboardPage() {
       <div>
         <RecentExpensesList expenses={data.recentExpenses} />
       </div>
+
+      {/* Modal for editing current cycle's budget independently */}
+      <EditCycleBudgetModal
+        isOpen={isEditCycleModalOpen}
+        onClose={() => setIsEditCycleModalOpen(false)}
+        initialAmount={effectiveBudget}
+        cycleId={activeCycle?.id}
+        onSuccess={() => {
+          loadCycle();
+        }}
+      />
     </div>
   );
 }

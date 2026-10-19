@@ -51,6 +51,7 @@ export async function registerUser(input: RegisterInput) {
           id: true,
           currency: true,
           budgetRenewalDay: true,
+          defaultBudgetAmount: true,
           budgetSetupCompleted: true,
         },
       },
@@ -63,6 +64,10 @@ export async function registerUser(input: RegisterInput) {
     name: user.name,
   });
 
+  const defaultBudget = user.settings?.defaultBudgetAmount
+    ? Number(user.settings.defaultBudgetAmount)
+    : null;
+
   return {
     user: {
       id: user.id,
@@ -71,8 +76,14 @@ export async function registerUser(input: RegisterInput) {
       createdAt: user.createdAt,
       currency: user.settings?.currency ?? "ILS",
       budgetRenewalDay: user.settings?.budgetRenewalDay ?? 1,
+      defaultBudgetAmount: defaultBudget,
       budgetSetupCompleted: user.settings?.budgetSetupCompleted ?? false,
-      settings: user.settings,
+      settings: user.settings
+        ? {
+            ...user.settings,
+            defaultBudgetAmount: defaultBudget,
+          }
+        : null,
     },
     token,
   };
@@ -87,6 +98,7 @@ export async function loginUser(input: LoginInput) {
           id: true,
           currency: true,
           budgetRenewalDay: true,
+          defaultBudgetAmount: true,
           budgetSetupCompleted: true,
         },
       },
@@ -109,6 +121,10 @@ export async function loginUser(input: LoginInput) {
     name: user.name,
   });
 
+  const defaultBudget = user.settings?.defaultBudgetAmount
+    ? Number(user.settings.defaultBudgetAmount)
+    : null;
+
   return {
     user: {
       id: user.id,
@@ -117,8 +133,14 @@ export async function loginUser(input: LoginInput) {
       createdAt: user.createdAt,
       currency: user.settings?.currency ?? "ILS",
       budgetRenewalDay: user.settings?.budgetRenewalDay ?? 1,
+      defaultBudgetAmount: defaultBudget,
       budgetSetupCompleted: user.settings?.budgetSetupCompleted ?? false,
-      settings: user.settings,
+      settings: user.settings
+        ? {
+            ...user.settings,
+            defaultBudgetAmount: defaultBudget,
+          }
+        : null,
     },
     token,
   };
@@ -138,6 +160,7 @@ export async function getMe(userId: string) {
           id: true,
           currency: true,
           budgetRenewalDay: true,
+          defaultBudgetAmount: true,
           budgetSetupCompleted: true,
         },
       },
@@ -148,6 +171,10 @@ export async function getMe(userId: string) {
     throw new AppError(404, "User not found");
   }
 
+  const defaultBudget = user.settings?.defaultBudgetAmount
+    ? Number(user.settings.defaultBudgetAmount)
+    : null;
+
   return {
     id: user.id,
     name: user.name,
@@ -156,7 +183,13 @@ export async function getMe(userId: string) {
     updatedAt: user.updatedAt,
     currency: user.settings?.currency ?? "ILS",
     budgetRenewalDay: user.settings?.budgetRenewalDay ?? 1,
+    defaultBudgetAmount: defaultBudget,
     budgetSetupCompleted: user.settings?.budgetSetupCompleted ?? false,
-    settings: user.settings,
+    settings: user.settings
+      ? {
+          ...user.settings,
+          defaultBudgetAmount: defaultBudget,
+        }
+      : null,
   };
 }

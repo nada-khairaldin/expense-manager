@@ -33,7 +33,7 @@ export interface PeriodData {
   label: string;
   periodDateRange: string;
   isDemo: true;
-  income: number;
+  budgetAmount: number;
   totalExpenses: number;
   remainingBudget: number;
   budgetPercentageUsed: number;

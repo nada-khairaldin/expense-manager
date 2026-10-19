@@ -19,7 +19,7 @@ export function DashboardHeader({ onOpenAddExpense }: DashboardHeaderProps) {
   // Find active item
   const activeItem = siteConfig.navItems.find((item) => item.href === pathname) ?? {
     title: "لوحة التحكم",
-    description: "نظرة عامة على الدخل والمصروفات وحالة الميزانية",
+    description: "نظرة عامة على الميزانية والمصروفات وحالة الإنفاق",
   };
 
   return (

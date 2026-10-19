@@ -1,5 +1,5 @@
 /**
- * Authentication and User Types for Masroofi
+ * Authentication, User, and Budget Cycle Types for Masroofi
  */
 
 export type SupportedCurrency = "ILS" | "USD" | "JOD" | "EUR";
@@ -9,6 +9,7 @@ export interface UserSettings {
   userId?: string;
   currency: SupportedCurrency | string;
   budgetRenewalDay: number;
+  defaultBudgetAmount: number | null;
   budgetSetupCompleted: boolean;
   createdAt?: string;
   updatedAt?: string;
@@ -22,6 +23,7 @@ export interface User {
   updatedAt?: string;
   currency: SupportedCurrency | string;
   budgetRenewalDay: number;
+  defaultBudgetAmount: number | null;
   budgetSetupCompleted: boolean;
   settings?: UserSettings | null;
 }
@@ -45,6 +47,25 @@ export interface RegisterInput {
 export interface BudgetSetupInput {
   currency: SupportedCurrency;
   budgetRenewalDay: number;
+  defaultBudgetAmount?: number;
+}
+
+export interface UpdateDefaultBudgetInput {
+  defaultBudgetAmount: number;
+}
+
+export interface BudgetCycle {
+  id: string;
+  userId: string;
+  startDate: string;
+  endDate: string;
+  budgetAmount: number;
+  totalExpenses: number;
+  remainingBudget: number;
+  percentageUsed: number;
+  isCompleted: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface AuthState {

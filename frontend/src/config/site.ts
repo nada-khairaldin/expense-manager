@@ -20,7 +20,7 @@ export const siteConfig = {
       title: "لوحة التحكم",
       href: "/dashboard",
       iconName: "LayoutDashboard",
-      description: "نظرة عامة على الدخل، المصروفات، وحالة الميزانية",
+      description: "نظرة عامة على الميزانية، المصروفات، وحالة الإنفاق",
     },
     {
       title: "المصروفات",

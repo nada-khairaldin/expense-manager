@@ -27,6 +27,7 @@ model UserSettings {
   userId               String   @unique
   currency             String   @default("ILS")
   budgetRenewalDay     Int      @default(1)
+  defaultBudgetAmount  Decimal? @db.Decimal(12, 2)
   budgetSetupCompleted Boolean  @default(false)
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
@@ -40,7 +41,6 @@ model BudgetCycle {
   startDate    DateTime @db.Date
   endDate      DateTime @db.Date
   budgetAmount Decimal  @db.Decimal(12, 2)
-  incomeAmount Decimal? @db.Decimal(12, 2)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 

@@ -28,10 +28,12 @@ export type AggregateUserSettings = {
 
 export type UserSettingsAvgAggregateOutputType = {
   budgetRenewalDay: number | null
+  defaultBudgetAmount: runtime.Decimal | null
 }
 
 export type UserSettingsSumAggregateOutputType = {
   budgetRenewalDay: number | null
+  defaultBudgetAmount: runtime.Decimal | null
 }
 
 export type UserSettingsMinAggregateOutputType = {
@@ -39,6 +41,7 @@ export type UserSettingsMinAggregateOutputType = {
   userId: string | null
   currency: string | null
   budgetRenewalDay: number | null
+  defaultBudgetAmount: runtime.Decimal | null
   budgetSetupCompleted: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -49,6 +52,7 @@ export type UserSettingsMaxAggregateOutputType = {
   userId: string | null
   currency: string | null
   budgetRenewalDay: number | null
+  defaultBudgetAmount: runtime.Decimal | null
   budgetSetupCompleted: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -59,6 +63,7 @@ export type UserSettingsCountAggregateOutputType = {
   userId: number
   currency: number
   budgetRenewalDay: number
+  defaultBudgetAmount: number
   budgetSetupCompleted: number
   createdAt: number
   updatedAt: number
@@ -68,10 +73,12 @@ export type UserSettingsCountAggregateOutputType = {
 
 export type UserSettingsAvgAggregateInputType = {
   budgetRenewalDay?: true
+  defaultBudgetAmount?: true
 }
 
 export type UserSettingsSumAggregateInputType = {
   budgetRenewalDay?: true
+  defaultBudgetAmount?: true
 }
 
 export type UserSettingsMinAggregateInputType = {
@@ -79,6 +86,7 @@ export type UserSettingsMinAggregateInputType = {
   userId?: true
   currency?: true
   budgetRenewalDay?: true
+  defaultBudgetAmount?: true
   budgetSetupCompleted?: true
   createdAt?: true
   updatedAt?: true
@@ -89,6 +97,7 @@ export type UserSettingsMaxAggregateInputType = {
   userId?: true
   currency?: true
   budgetRenewalDay?: true
+  defaultBudgetAmount?: true
   budgetSetupCompleted?: true
   createdAt?: true
   updatedAt?: true
@@ -99,6 +108,7 @@ export type UserSettingsCountAggregateInputType = {
   userId?: true
   currency?: true
   budgetRenewalDay?: true
+  defaultBudgetAmount?: true
   budgetSetupCompleted?: true
   createdAt?: true
   updatedAt?: true
@@ -196,6 +206,7 @@ export type UserSettingsGroupByOutputType = {
   userId: string
   currency: string
   budgetRenewalDay: number
+  defaultBudgetAmount: runtime.Decimal | null
   budgetSetupCompleted: boolean
   createdAt: Date
   updatedAt: Date
@@ -229,6 +240,7 @@ export type UserSettingsWhereInput = {
   userId?: Prisma.StringFilter<"UserSettings"> | string
   currency?: Prisma.StringFilter<"UserSettings"> | string
   budgetRenewalDay?: Prisma.IntFilter<"UserSettings"> | number
+  defaultBudgetAmount?: Prisma.DecimalNullableFilter<"UserSettings"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   budgetSetupCompleted?: Prisma.BoolFilter<"UserSettings"> | boolean
   createdAt?: Prisma.DateTimeFilter<"UserSettings"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"UserSettings"> | Date | string
@@ -240,6 +252,7 @@ export type UserSettingsOrderByWithRelationInput = {
   userId?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   budgetRenewalDay?: Prisma.SortOrder
+  defaultBudgetAmount?: Prisma.SortOrderInput | Prisma.SortOrder
   budgetSetupCompleted?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -254,6 +267,7 @@ export type UserSettingsWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.UserSettingsWhereInput | Prisma.UserSettingsWhereInput[]
   currency?: Prisma.StringFilter<"UserSettings"> | string
   budgetRenewalDay?: Prisma.IntFilter<"UserSettings"> | number
+  defaultBudgetAmount?: Prisma.DecimalNullableFilter<"UserSettings"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   budgetSetupCompleted?: Prisma.BoolFilter<"UserSettings"> | boolean
   createdAt?: Prisma.DateTimeFilter<"UserSettings"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"UserSettings"> | Date | string
@@ -265,6 +279,7 @@ export type UserSettingsOrderByWithAggregationInput = {
   userId?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   budgetRenewalDay?: Prisma.SortOrder
+  defaultBudgetAmount?: Prisma.SortOrderInput | Prisma.SortOrder
   budgetSetupCompleted?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -283,6 +298,7 @@ export type UserSettingsScalarWhereWithAggregatesInput = {
   userId?: Prisma.StringWithAggregatesFilter<"UserSettings"> | string
   currency?: Prisma.StringWithAggregatesFilter<"UserSettings"> | string
   budgetRenewalDay?: Prisma.IntWithAggregatesFilter<"UserSettings"> | number
+  defaultBudgetAmount?: Prisma.DecimalNullableWithAggregatesFilter<"UserSettings"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   budgetSetupCompleted?: Prisma.BoolWithAggregatesFilter<"UserSettings"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"UserSettings"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"UserSettings"> | Date | string
@@ -292,6 +308,7 @@ export type UserSettingsCreateInput = {
   id?: string
   currency?: string
   budgetRenewalDay?: number
+  defaultBudgetAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   budgetSetupCompleted?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -303,6 +320,7 @@ export type UserSettingsUncheckedCreateInput = {
   userId: string
   currency?: string
   budgetRenewalDay?: number
+  defaultBudgetAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   budgetSetupCompleted?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -312,6 +330,7 @@ export type UserSettingsUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   budgetRenewalDay?: Prisma.IntFieldUpdateOperationsInput | number
+  defaultBudgetAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   budgetSetupCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -323,6 +342,7 @@ export type UserSettingsUncheckedUpdateInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   budgetRenewalDay?: Prisma.IntFieldUpdateOperationsInput | number
+  defaultBudgetAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   budgetSetupCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -333,6 +353,7 @@ export type UserSettingsCreateManyInput = {
   userId: string
   currency?: string
   budgetRenewalDay?: number
+  defaultBudgetAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   budgetSetupCompleted?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -342,6 +363,7 @@ export type UserSettingsUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   budgetRenewalDay?: Prisma.IntFieldUpdateOperationsInput | number
+  defaultBudgetAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   budgetSetupCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -352,6 +374,7 @@ export type UserSettingsUncheckedUpdateManyInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   budgetRenewalDay?: Prisma.IntFieldUpdateOperationsInput | number
+  defaultBudgetAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   budgetSetupCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -367,6 +390,7 @@ export type UserSettingsCountOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   budgetRenewalDay?: Prisma.SortOrder
+  defaultBudgetAmount?: Prisma.SortOrder
   budgetSetupCompleted?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -374,6 +398,7 @@ export type UserSettingsCountOrderByAggregateInput = {
 
 export type UserSettingsAvgOrderByAggregateInput = {
   budgetRenewalDay?: Prisma.SortOrder
+  defaultBudgetAmount?: Prisma.SortOrder
 }
 
 export type UserSettingsMaxOrderByAggregateInput = {
@@ -381,6 +406,7 @@ export type UserSettingsMaxOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   budgetRenewalDay?: Prisma.SortOrder
+  defaultBudgetAmount?: Prisma.SortOrder
   budgetSetupCompleted?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -391,6 +417,7 @@ export type UserSettingsMinOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   budgetRenewalDay?: Prisma.SortOrder
+  defaultBudgetAmount?: Prisma.SortOrder
   budgetSetupCompleted?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -398,6 +425,7 @@ export type UserSettingsMinOrderByAggregateInput = {
 
 export type UserSettingsSumOrderByAggregateInput = {
   budgetRenewalDay?: Prisma.SortOrder
+  defaultBudgetAmount?: Prisma.SortOrder
 }
 
 export type UserSettingsCreateNestedOneWithoutUserInput = {
@@ -440,6 +468,14 @@ export type IntFieldUpdateOperationsInput = {
   divide?: number
 }
 
+export type NullableDecimalFieldUpdateOperationsInput = {
+  set?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  increment?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  decrement?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  multiply?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  divide?: runtime.Decimal | runtime.DecimalJsLike | number | string
+}
+
 export type BoolFieldUpdateOperationsInput = {
   set?: boolean
 }
@@ -448,6 +484,7 @@ export type UserSettingsCreateWithoutUserInput = {
   id?: string
   currency?: string
   budgetRenewalDay?: number
+  defaultBudgetAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   budgetSetupCompleted?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -457,6 +494,7 @@ export type UserSettingsUncheckedCreateWithoutUserInput = {
   id?: string
   currency?: string
   budgetRenewalDay?: number
+  defaultBudgetAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   budgetSetupCompleted?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -482,6 +520,7 @@ export type UserSettingsUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   budgetRenewalDay?: Prisma.IntFieldUpdateOperationsInput | number
+  defaultBudgetAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   budgetSetupCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -491,6 +530,7 @@ export type UserSettingsUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   budgetRenewalDay?: Prisma.IntFieldUpdateOperationsInput | number
+  defaultBudgetAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   budgetSetupCompleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -503,6 +543,7 @@ export type UserSettingsSelect<ExtArgs extends runtime.Types.Extensions.Internal
   userId?: boolean
   currency?: boolean
   budgetRenewalDay?: boolean
+  defaultBudgetAmount?: boolean
   budgetSetupCompleted?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -514,6 +555,7 @@ export type UserSettingsSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   userId?: boolean
   currency?: boolean
   budgetRenewalDay?: boolean
+  defaultBudgetAmount?: boolean
   budgetSetupCompleted?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -525,6 +567,7 @@ export type UserSettingsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   userId?: boolean
   currency?: boolean
   budgetRenewalDay?: boolean
+  defaultBudgetAmount?: boolean
   budgetSetupCompleted?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -536,12 +579,13 @@ export type UserSettingsSelectScalar = {
   userId?: boolean
   currency?: boolean
   budgetRenewalDay?: boolean
+  defaultBudgetAmount?: boolean
   budgetSetupCompleted?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type UserSettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "currency" | "budgetRenewalDay" | "budgetSetupCompleted" | "createdAt" | "updatedAt", ExtArgs["result"]["userSettings"]>
+export type UserSettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "currency" | "budgetRenewalDay" | "defaultBudgetAmount" | "budgetSetupCompleted" | "createdAt" | "updatedAt", ExtArgs["result"]["userSettings"]>
 export type UserSettingsInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
@@ -562,6 +606,7 @@ export type $UserSettingsPayload<ExtArgs extends runtime.Types.Extensions.Intern
     userId: string
     currency: string
     budgetRenewalDay: number
+    defaultBudgetAmount: runtime.Decimal | null
     budgetSetupCompleted: boolean
     createdAt: Date
     updatedAt: Date
@@ -993,6 +1038,7 @@ export interface UserSettingsFieldRefs {
   readonly userId: Prisma.FieldRef<"UserSettings", 'String'>
   readonly currency: Prisma.FieldRef<"UserSettings", 'String'>
   readonly budgetRenewalDay: Prisma.FieldRef<"UserSettings", 'Int'>
+  readonly defaultBudgetAmount: Prisma.FieldRef<"UserSettings", 'Decimal'>
   readonly budgetSetupCompleted: Prisma.FieldRef<"UserSettings", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"UserSettings", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"UserSettings", 'DateTime'>

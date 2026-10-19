@@ -18,6 +18,7 @@ import type {
   RegisterInput,
   BudgetSetupInput,
   UserSettings,
+  SupportedCurrency,
 } from "./types";
 import { ApiClientError } from "@/lib/api/client";
 
@@ -29,6 +30,7 @@ export interface AuthContextValue {
   login: (input: LoginInput) => Promise<User>;
   register: (input: RegisterInput) => Promise<User>;
   completeBudgetSetup: (input: BudgetSetupInput) => Promise<UserSettings>;
+  updateDefaultBudget: (defaultBudgetAmount: number) => Promise<UserSettings>;
   logout: () => void;
   refreshUser: () => Promise<User | null>;
 }
@@ -116,6 +118,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           ...prev,
           currency: updatedSettings.currency,
           budgetRenewalDay: updatedSettings.budgetRenewalDay,
+          defaultBudgetAmount: updatedSettings.defaultBudgetAmount,
           budgetSetupCompleted: true,
           settings: updatedSettings,
         };
@@ -124,6 +127,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return updatedSettings;
     },
     [token]
+  );
+
+  const updateDefaultBudget = React.useCallback(
+    async (defaultBudgetAmount: number): Promise<UserSettings> => {
+      const currentToken = token || getStoredToken();
+      if (!currentToken) {
+        throw new Error("يجب تسجيل الدخول لتحديث الميزانية");
+      }
+
+      const updatedSettings = await updateBudgetSetupApi(
+        {
+          currency: (user?.currency as SupportedCurrency) || "ILS",
+          budgetRenewalDay: user?.budgetRenewalDay || 1,
+          defaultBudgetAmount,
+        },
+        currentToken
+      );
+
+      setUser((prev) => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          defaultBudgetAmount: updatedSettings.defaultBudgetAmount,
+          settings: updatedSettings,
+        };
+      });
+
+      return updatedSettings;
+    },
+    [token, user]
   );
 
   const logout = React.useCallback(() => {
@@ -154,10 +187,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       login,
       register,
       completeBudgetSetup,
+      updateDefaultBudget,
       logout,
       refreshUser,
     }),
-    [user, token, isLoading, login, register, completeBudgetSetup, logout, refreshUser]
+    [user, token, isLoading, login, register, completeBudgetSetup, updateDefaultBudget, logout, refreshUser]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -4,8 +4,10 @@ import type {
   LoginInput,
   RegisterInput,
   BudgetSetupInput,
+  UpdateDefaultBudgetInput,
   User,
   UserSettings,
+  BudgetCycle,
 } from "./types";
 
 /**
@@ -42,7 +44,7 @@ export async function getMeApi(token: string): Promise<User> {
 }
 
 /**
- * Update budget renewal day & currency, marking setup as completed
+ * Update budget renewal day, currency & default budget, marking setup as completed
  * PUT /settings/budget-setup
  */
 export async function updateBudgetSetupApi(
@@ -57,6 +59,21 @@ export async function updateBudgetSetupApi(
 }
 
 /**
+ * Update only default budget amount
+ * PATCH /settings/default-budget
+ */
+export async function updateDefaultBudgetApi(
+  input: UpdateDefaultBudgetInput,
+  token: string
+): Promise<UserSettings> {
+  return apiClient<UserSettings>("/settings/default-budget", {
+    method: "PATCH",
+    token,
+    body: JSON.stringify(input),
+  });
+}
+
+/**
  * Get current user budget settings
  * GET /settings/budget-setup
  */
@@ -64,5 +81,47 @@ export async function getSettingsApi(token: string): Promise<UserSettings> {
   return apiClient<UserSettings>("/settings/budget-setup", {
     method: "GET",
     token,
+  });
+}
+
+/**
+ * Get current active budget cycle for user
+ * GET /budget-cycles/current
+ */
+export async function getCurrentBudgetCycleApi(token: string): Promise<BudgetCycle | null> {
+  return apiClient<BudgetCycle | null>("/budget-cycles/current", {
+    method: "GET",
+    token,
+  });
+}
+
+/**
+ * Update current active cycle's budget amount independently
+ * PATCH /budget-cycles/current
+ */
+export async function updateCurrentCycleBudgetApi(
+  budgetAmount: number,
+  token: string
+): Promise<BudgetCycle> {
+  return apiClient<BudgetCycle>("/budget-cycles/current", {
+    method: "PATCH",
+    token,
+    body: JSON.stringify({ budgetAmount }),
+  });
+}
+
+/**
+ * Update a specific cycle's budget amount by ID
+ * PATCH /budget-cycles/:id
+ */
+export async function updateCycleBudgetByIdApi(
+  cycleId: string,
+  budgetAmount: number,
+  token: string
+): Promise<BudgetCycle> {
+  return apiClient<BudgetCycle>(`/budget-cycles/${cycleId}`, {
+    method: "PATCH",
+    token,
+    body: JSON.stringify({ budgetAmount }),
   });
 }

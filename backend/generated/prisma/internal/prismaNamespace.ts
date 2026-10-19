@@ -922,6 +922,7 @@ export const UserSettingsScalarFieldEnum = {
   userId: 'userId',
   currency: 'currency',
   budgetRenewalDay: 'budgetRenewalDay',
+  defaultBudgetAmount: 'defaultBudgetAmount',
   budgetSetupCompleted: 'budgetSetupCompleted',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -936,7 +937,6 @@ export const BudgetCycleScalarFieldEnum = {
   startDate: 'startDate',
   endDate: 'endDate',
   budgetAmount: 'budgetAmount',
-  incomeAmount: 'incomeAmount',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1057,13 +1057,6 @@ export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel,
 
 
 /**
- * Reference to a field of type 'Boolean'
- */
-export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
-    
-
-
-/**
  * Reference to a field of type 'Decimal'
  */
 export type DecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal'>
@@ -1074,6 +1067,13 @@ export type DecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel,
  * Reference to a field of type 'Decimal[]'
  */
 export type ListDecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Boolean'
+ */
+export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
     
 
 

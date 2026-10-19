@@ -92,6 +92,7 @@ export const UserSettingsScalarFieldEnum = {
   userId: 'userId',
   currency: 'currency',
   budgetRenewalDay: 'budgetRenewalDay',
+  defaultBudgetAmount: 'defaultBudgetAmount',
   budgetSetupCompleted: 'budgetSetupCompleted',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -106,7 +107,6 @@ export const BudgetCycleScalarFieldEnum = {
   startDate: 'startDate',
   endDate: 'endDate',
   budgetAmount: 'budgetAmount',
-  incomeAmount: 'incomeAmount',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

@@ -14,6 +14,25 @@ export const budgetSetupSchema = z.object({
     .int("Budget renewal day must be an integer")
     .min(1, "Budget renewal day must be between 1 and 31")
     .max(31, "Budget renewal day must be between 1 and 31"),
+  defaultBudgetAmount: z
+    .number({
+      message: "Default budget amount must be a valid number",
+    })
+    .positive("Default budget amount must be greater than zero")
+    .max(9999999999.99, "Default budget amount exceeds maximum allowed value")
+    .optional(),
 });
 
 export type BudgetSetupInput = z.infer<typeof budgetSetupSchema>;
+
+export const updateDefaultBudgetSchema = z.object({
+  defaultBudgetAmount: z
+    .number({
+      message: "Default budget amount must be a valid number",
+    })
+    .positive("Default budget amount must be greater than zero")
+    .max(9999999999.99, "Default budget amount exceeds maximum allowed value"),
+});
+
+export type UpdateDefaultBudgetInput = z.infer<typeof updateDefaultBudgetSchema>;
+

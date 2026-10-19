@@ -23,6 +23,7 @@ import {
   Sparkles,
   ChevronRight,
   ChevronLeft,
+  Wallet,
 } from "lucide-react";
 
 interface CurrencyOption {
@@ -66,6 +67,8 @@ const QUICK_DAYS = [
   { day: 31, label: "اليوم 31 (نهاية الشهر)" },
 ];
 
+const QUICK_BUDGETS = [3000, 5000, 8000, 10000, 15000];
+
 interface BudgetSetupFormProps {
   user: User | null;
 }
@@ -86,6 +89,10 @@ function BudgetSetupForm({ user }: BudgetSetupFormProps) {
     user?.budgetRenewalDay && user.budgetRenewalDay >= 1 && user.budgetRenewalDay <= 31
       ? user.budgetRenewalDay
       : 1
+  );
+
+  const [defaultBudget, setDefaultBudget] = React.useState<string>(
+    user?.defaultBudgetAmount ? String(user.defaultBudgetAmount) : "5000"
   );
 
   const [isSubmitting, setIsSubmitting] = React.useState(false);
@@ -109,12 +116,20 @@ function BudgetSetupForm({ user }: BudgetSetupFormProps) {
     if (isSubmitting) return;
 
     setServerError(null);
+
+    const parsedBudget = parseFloat(defaultBudget);
+    if (isNaN(parsedBudget) || parsedBudget <= 0) {
+      setServerError("يرجى إدخال مبلغ ميزانية افتراضي صحيح أكبر من الصفر");
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
       await completeBudgetSetup({
         currency,
         budgetRenewalDay: renewalDay,
+        defaultBudgetAmount: parsedBudget,
       });
 
       setIsSuccess(true);
@@ -371,6 +386,98 @@ function BudgetSetupForm({ user }: BudgetSetupFormProps) {
               </p>
               <p className="text-[11px] text-text-muted">
                 ملاحظة مهمة: في الأشهر التي لا تحتوي على هذا اليوم (مثلاً في حال اختيار يوم 31 في شهر فبراير المكون من 28 أو 29 يومًا، أو الأشهر ذات الـ 30 يومًا)، ستتجدد الدورة تلقائيًا في <strong>اليوم الأخير</strong> من ذلك الشهر.
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* 3. Default Monthly Budget Amount Card */}
+      <Card>
+        <CardHeader className="pb-3">
+          <div className="flex items-center gap-2">
+            <div className="p-2 rounded-xl bg-brand-teal/10 dark:bg-brand-teal/20 text-brand-teal">
+              <Wallet className="w-5 h-5" />
+            </div>
+            <div>
+              <CardTitle className="text-base font-bold">
+                3. الميزانية الشهرية الافتراضية
+              </CardTitle>
+              <CardDescription>
+                المبلغ المالي المخصص كخطة إنفاق لدورتك الشهرية الحالية والدورات المستقبلية
+              </CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+
+        <CardContent className="space-y-4 pt-2">
+          {/* Quick Preset Buttons */}
+          <div className="space-y-1.5">
+            <span className="text-xs font-semibold text-text-secondary block">
+              مبالغ ميزانية شائعة وسريعة:
+            </span>
+            <div className="flex flex-wrap gap-2">
+              {QUICK_BUDGETS.map((amount) => {
+                const isSelected = defaultBudget === String(amount);
+                const curSymbol = CURRENCIES.find((c) => c.code === currency)?.symbol || "₪";
+                return (
+                  <button
+                    key={amount}
+                    type="button"
+                    onClick={() => setDefaultBudget(String(amount))}
+                    disabled={isSubmitting}
+                    className={cn(
+                      "px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border",
+                      isSelected
+                        ? "bg-brand-teal text-white border-brand-teal shadow-sm"
+                        : "border-border bg-surface text-text-secondary hover:bg-surface-muted"
+                    )}
+                  >
+                    {amount.toLocaleString()} {curSymbol}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Custom Input */}
+          <div className="p-4 rounded-2xl border border-border bg-surface-muted/30 space-y-2">
+            <label
+              htmlFor="defaultBudgetInput"
+              className="text-xs font-bold text-brand-primary dark:text-foreground block"
+            >
+              مبلغ الميزانية المخصص (أو أدخل مبلغاً مخصصاً):
+            </label>
+            <div className="relative">
+              <input
+                id="defaultBudgetInput"
+                type="number"
+                min="1"
+                step="any"
+                value={defaultBudget}
+                onChange={(e) => setDefaultBudget(e.target.value)}
+                disabled={isSubmitting}
+                placeholder="5000"
+                className="w-full px-4 py-2.5 rounded-xl border border-border bg-surface text-brand-primary dark:text-foreground font-mono font-bold text-sm focus:outline-none focus:ring-2 focus:ring-brand-teal transition-all pe-12"
+              />
+              <span className="absolute inset-y-0 end-0 pe-4 flex items-center text-text-muted font-bold text-xs pointer-events-none">
+                {CURRENCIES.find((c) => c.code === currency)?.symbol || "₪"}
+              </span>
+            </div>
+          </div>
+
+          {/* Explanation Note */}
+          <div className="flex items-start gap-3 p-3.5 rounded-2xl bg-brand-primary/5 dark:bg-brand-primary/20 border border-brand-primary/10 text-xs text-text-secondary leading-relaxed">
+            <Info className="w-4 h-4 text-brand-teal shrink-0 mt-0.5" />
+            <div className="space-y-1">
+              <p className="font-semibold text-brand-primary dark:text-foreground">
+                كيف يتم تطبيق الميزانية الافتراضية؟
+              </p>
+              <p>
+                سيتم اعتماد هذا المبلغ لميزانية <strong>الدورة النشطة الحالية</strong> فوراً، وسيكون القيمة الافتراضية لأي <strong>دورة قادمة</strong> يتم إنشاؤها تلقائياً.
+              </p>
+              <p className="text-[11px] text-text-muted">
+                يمكنك في أي وقت تعديل ميزانية دورة معينة بشكل مستقل دون المساس بالميزانية الافتراضية أو الدورات الأخرى.
               </p>
             </div>
           </div>
