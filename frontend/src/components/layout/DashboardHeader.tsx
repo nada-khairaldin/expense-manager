@@ -4,8 +4,9 @@ import { usePathname } from "next/navigation";
 import { siteConfig } from "@/config/site";
 import { ThemeToggle } from "@/components/shared/ThemeToggle";
 import { Logo } from "@/components/shared/Logo";
-import { PlusCircle } from "lucide-react";
+import { PlusCircle, LogOut } from "lucide-react";
 import Link from "next/link";
+import { useAuth } from "@/features/auth/AuthContext";
 
 export interface DashboardHeaderProps {
   onOpenAddExpense: () => void;
@@ -13,6 +14,7 @@ export interface DashboardHeaderProps {
 
 export function DashboardHeader({ onOpenAddExpense }: DashboardHeaderProps) {
   const pathname = usePathname();
+  const { user, logout } = useAuth();
 
   // Find active item
   const activeItem = siteConfig.navItems.find((item) => item.href === pathname) ?? {
@@ -41,8 +43,8 @@ export function DashboardHeader({ onOpenAddExpense }: DashboardHeaderProps) {
         )}
       </div>
 
-      {/* Actions: Add Expense & Theme Toggle */}
-      <div className="flex items-center gap-2.5 sm:gap-3 ms-auto">
+      {/* Actions: Add Expense, User, Theme Toggle & Logout */}
+      <div className="flex items-center gap-2 sm:gap-2.5 ms-auto">
         <button
           type="button"
           onClick={onOpenAddExpense}
@@ -53,7 +55,26 @@ export function DashboardHeader({ onOpenAddExpense }: DashboardHeaderProps) {
           <span className="sm:hidden">مصروف</span>
         </button>
 
+        {user && (
+          <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-muted/60 border border-border text-xs text-brand-primary dark:text-foreground font-semibold">
+            <div className="w-6 h-6 rounded-lg bg-brand-primary/10 dark:bg-brand-primary/30 flex items-center justify-center text-brand-primary dark:text-foreground text-[11px] font-bold">
+              {user.name.slice(0, 1).toUpperCase()}
+            </div>
+            <span className="max-w-[120px] truncate">{user.name}</span>
+          </div>
+        )}
+
         <ThemeToggle />
+
+        <button
+          type="button"
+          onClick={logout}
+          className="p-2 rounded-xl border border-border text-text-muted hover:text-status-danger hover:border-status-danger/30 hover:bg-status-danger-bg transition-colors"
+          title="تسجيل الخروج"
+          aria-label="تسجيل الخروج"
+        >
+          <LogOut className="w-4 h-4" />
+        </button>
       </div>
     </header>
   );

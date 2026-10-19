@@ -5,14 +5,15 @@ import { usePathname } from "next/navigation";
 import { siteConfig } from "@/config/site";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/shared/Logo";
+import { useAuth } from "@/features/auth/AuthContext";
 import {
   LayoutDashboard,
   Receipt,
   FolderTree,
   BarChart3,
   Settings,
-  ShieldCheck,
   LucideIcon,
+  LogOut,
 } from "lucide-react";
 
 const iconMap: Record<string, LucideIcon> = {
@@ -25,6 +26,7 @@ const iconMap: Record<string, LucideIcon> = {
 
 export function Sidebar() {
   const pathname = usePathname();
+  const { user, logout } = useAuth();
 
   return (
     <aside
@@ -75,16 +77,33 @@ export function Sidebar() {
         })}
       </div>
 
-      {/* Sidebar Footer Info Card */}
-      <div className="p-4 border-t border-border/80 m-3 rounded-2xl bg-surface-muted/60 space-y-2">
-        <div className="flex items-center gap-2 text-xs font-bold text-brand-primary dark:text-foreground">
-          <ShieldCheck className="w-4 h-4 text-brand-teal shrink-0" />
-          <span>الميزانية آمنة</span>
+      {/* User Account / Session Card */}
+      {user && (
+        <div className="p-3 border-t border-border/80 m-3 rounded-2xl bg-surface-muted/60 space-y-2">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-brand-teal text-white flex items-center justify-center text-xs font-bold shrink-0">
+              {user.name.slice(0, 1).toUpperCase()}
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="text-xs font-bold text-brand-primary dark:text-foreground truncate">
+                {user.name}
+              </div>
+              <div className="text-[10px] text-text-muted truncate dir-ltr text-end sm:text-start">
+                {user.email}
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={logout}
+              className="p-1.5 rounded-lg text-text-muted hover:text-status-danger hover:bg-status-danger-bg transition-colors shrink-0"
+              title="تسجيل الخروج"
+              aria-label="تسجيل الخروج"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
+          </div>
         </div>
-        <p className="text-[11px] text-text-secondary leading-relaxed">
-          نظام مصروفي يساعدك في تتبع نفقات العائلة وفق دورة مالية واضحة.
-        </p>
-      </div>
+      )}
     </aside>
   );
 }
