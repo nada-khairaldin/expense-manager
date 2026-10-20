@@ -44,6 +44,21 @@ export async function getMeApi(token: string): Promise<User> {
 }
 
 /**
+ * Update authenticated user's display name / profile
+ * PATCH /auth/profile
+ */
+export async function updateProfileApi(
+  input: { name: string },
+  token: string
+): Promise<User> {
+  return apiClient<User>("/auth/profile", {
+    method: "PATCH",
+    token,
+    body: JSON.stringify(input),
+  });
+}
+
+/**
  * Update budget renewal day, currency & default budget, marking setup as completed
  * PUT /settings/budget-setup
  */

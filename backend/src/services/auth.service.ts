@@ -193,3 +193,48 @@ export async function getMe(userId: string) {
       : null,
   };
 }
+
+export async function updateUserProfile(userId: string, input: { name: string }) {
+  const updatedUser = await prisma.user.update({
+    where: { id: userId },
+    data: { name: input.name.trim() },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      createdAt: true,
+      updatedAt: true,
+      settings: {
+        select: {
+          id: true,
+          currency: true,
+          budgetRenewalDay: true,
+          defaultBudgetAmount: true,
+          budgetSetupCompleted: true,
+        },
+      },
+    },
+  });
+
+  const defaultBudget = updatedUser.settings?.defaultBudgetAmount
+    ? Number(updatedUser.settings.defaultBudgetAmount)
+    : null;
+
+  return {
+    id: updatedUser.id,
+    name: updatedUser.name,
+    email: updatedUser.email,
+    createdAt: updatedUser.createdAt,
+    updatedAt: updatedUser.updatedAt,
+    currency: updatedUser.settings?.currency ?? "ILS",
+    budgetRenewalDay: updatedUser.settings?.budgetRenewalDay ?? 1,
+    defaultBudgetAmount: defaultBudget,
+    budgetSetupCompleted: updatedUser.settings?.budgetSetupCompleted ?? false,
+    settings: updatedUser.settings
+      ? {
+          ...updatedUser.settings,
+          defaultBudgetAmount: defaultBudget,
+        }
+      : null,
+  };
+}

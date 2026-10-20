@@ -11,6 +11,7 @@ import {
   registerApi,
   getMeApi,
   updateBudgetSetupApi,
+  updateProfileApi,
 } from "./api";
 import type {
   User,
@@ -31,6 +32,7 @@ export interface AuthContextValue {
   register: (input: RegisterInput) => Promise<User>;
   completeBudgetSetup: (input: BudgetSetupInput) => Promise<UserSettings>;
   updateDefaultBudget: (defaultBudgetAmount: number) => Promise<UserSettings>;
+  updateProfile: (input: { name: string }) => Promise<User>;
   logout: () => void;
   refreshUser: () => Promise<User | null>;
 }
@@ -159,6 +161,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     [token, user]
   );
 
+  const updateProfile = React.useCallback(
+    async (input: { name: string }): Promise<User> => {
+      const currentToken = token || getStoredToken();
+      if (!currentToken) {
+        throw new Error("يجب تسجيل الدخول لتحديث البيانات");
+      }
+
+      const updatedUser = await updateProfileApi(input, currentToken);
+      setUser(updatedUser);
+      return updatedUser;
+    },
+    [token]
+  );
+
   const logout = React.useCallback(() => {
     removeStoredToken();
     setToken(null);
@@ -188,10 +204,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       register,
       completeBudgetSetup,
       updateDefaultBudget,
+      updateProfile,
       logout,
       refreshUser,
     }),
-    [user, token, isLoading, login, register, completeBudgetSetup, updateDefaultBudget, logout, refreshUser]
+    [user, token, isLoading, login, register, completeBudgetSetup, updateDefaultBudget, updateProfile, logout, refreshUser]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
