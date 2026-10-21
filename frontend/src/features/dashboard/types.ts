@@ -1,14 +1,14 @@
 export type BudgetStatusLevel = "excellent" | "warning" | "danger";
 
 export interface ExpenseItem {
-  id: number;
+  id: string | number;
   amount: number;
-  description: string;
-  date: string; // ISO date string: YYYY-MM-DD
-  categoryId: number;
+  description: string | null;
+  date: string | Date;
+  categoryId: string | number | null;
   categoryName: string;
-  categoryIcon: string;
-  categoryColor: string;
+  categoryIcon?: string | null;
+  categoryColor?: string | null;
 }
 
 export interface CategoryBudget {

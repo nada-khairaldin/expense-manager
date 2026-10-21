@@ -14,6 +14,8 @@ import { StatCard } from "@/components/ui/StatCard";
 import { Badge } from "@/components/ui/Badge";
 import { useAuth } from "@/features/auth/AuthContext";
 import { useCategories } from "@/features/categories/useCategories";
+import { useExpenses } from "@/features/expenses/useExpenses";
+import { formatDate } from "@/lib/formatters/formatDate";
 import { getCurrentBudgetCycleApi } from "@/features/auth/api";
 import { type BudgetCycle } from "@/features/auth/types";
 import { EditCycleBudgetModal } from "@/components/budget/EditCycleBudgetModal";
@@ -34,6 +36,13 @@ export default function DashboardPage() {
   const [activeCycle, setActiveCycle] = React.useState<BudgetCycle | null>(null);
   const [isEditCycleModalOpen, setIsEditCycleModalOpen] = React.useState(false);
 
+  // Real recent expenses from backend
+  const { expenses: realExpenses, refetch: refetchExpenses } = useExpenses({
+    limit: 5,
+    sortBy: "date",
+    order: "desc",
+  });
+
   const loadCycle = React.useCallback(() => {
     if (!token) return;
     getCurrentBudgetCycleApi(token)
@@ -41,7 +50,8 @@ export default function DashboardPage() {
         setActiveCycle(cycle);
       })
       .catch(() => {});
-  }, [token]);
+    refetchExpenses();
+  }, [token, refetchExpenses]);
 
   React.useEffect(() => {
     let isMounted = true;
@@ -65,7 +75,7 @@ export default function DashboardPage() {
       : data.budgetAmount;
 
   const effectiveTotalExpenses =
-    selectedPeriod === "current" && activeCycle && activeCycle.totalExpenses > 0
+    selectedPeriod === "current" && activeCycle
       ? activeCycle.totalExpenses
       : data.totalExpenses;
 
@@ -107,10 +117,46 @@ export default function DashboardPage() {
     return data.categories;
   }, [selectedPeriod, token, realCategories, data.categories]);
 
+  const effectiveRecentExpenses = React.useMemo(() => {
+    if (selectedPeriod === "current" && token) {
+      return realExpenses.map((exp) => ({
+        id: exp.id,
+        amount: exp.amount,
+        description: exp.description || exp.categoryName,
+        date: exp.expenseDate || exp.date,
+        categoryId: exp.categoryId,
+        categoryName: exp.categoryName,
+        categoryIcon: exp.categoryIcon || "Receipt",
+        categoryColor: exp.categoryColor || "#16856B",
+      }));
+    }
+    return data.recentExpenses;
+  }, [selectedPeriod, token, realExpenses, data.recentExpenses]);
+
+  const effectiveDailySpending = React.useMemo(() => {
+    if (selectedPeriod === "current" && token) {
+      if (realExpenses.length === 0) {
+        return [];
+      }
+      const map = new Map<string, number>();
+      realExpenses.forEach((exp) => {
+        const d = String(exp.expenseDate || exp.date).slice(0, 10);
+        map.set(d, (map.get(d) || 0) + exp.amount);
+      });
+      const sortedKeys = Array.from(map.keys()).sort();
+      return sortedKeys.map((k) => ({
+        dayLabel: formatDate(k, { day: "numeric", month: "short" }),
+        fullDate: k,
+        amount: map.get(k) || 0,
+      }));
+    }
+    return data.dailySpending;
+  }, [selectedPeriod, token, realExpenses, data.dailySpending]);
+
   return (
     <div className="space-y-6">
-      {/* 1. Demo Data Notice */}
-      <DemoDataNotice />
+      {/* 1. Demo Data Notice (Only shown when previewing previous demo period or before budget setup) */}
+      {(selectedPeriod === "previous" || !activeCycle) && <DemoDataNotice />}
 
       {/* 2. Page Header with Period Selector & Quick Actions */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 pb-2">
@@ -245,8 +291,8 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
         <div className="lg:col-span-7">
           <SpendingChart
-            data={data.dailySpending}
-            periodLabel={data.label}
+            data={effectiveDailySpending}
+            periodLabel={selectedPeriod === "current" && activeCycle ? "الدورة الحالية" : data.label}
           />
         </div>
         <div className="lg:col-span-5">
@@ -256,7 +302,7 @@ export default function DashboardPage() {
 
       {/* 5. Recent Expenses List */}
       <div>
-        <RecentExpensesList expenses={data.recentExpenses} />
+        <RecentExpensesList expenses={effectiveRecentExpenses} />
       </div>
 
       {/* Modal for editing current cycle's budget independently */}

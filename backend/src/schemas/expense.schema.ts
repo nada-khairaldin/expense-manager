@@ -88,6 +88,11 @@ export const expenseQuerySchema = z
       z.string().min(1).optional(),
     ),
 
+    budgetCycleId: z.preprocess(
+      parseQueryString,
+      z.string().min(1).optional(),
+    ),
+
     startDate: z.preprocess(
       parseQueryDate,
       z.date().optional(),

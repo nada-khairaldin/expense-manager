@@ -60,7 +60,9 @@ export function RecentExpensesList({ expenses }: RecentExpensesListProps) {
         ) : (
           <div className="divide-y divide-border-subtle">
             {expenses.map((expense) => {
-              const IconComponent = iconMap[expense.categoryIcon] ?? Layers;
+              const iconKey = expense.categoryIcon || "Receipt";
+              const IconComponent = iconMap[iconKey] ?? Layers;
+              const color = expense.categoryColor || "#16856B";
               return (
                 <div
                   key={expense.id}
@@ -70,15 +72,15 @@ export function RecentExpensesList({ expenses }: RecentExpensesListProps) {
                     <div
                       className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-105"
                       style={{
-                        backgroundColor: `${expense.categoryColor}15`,
-                        color: expense.categoryColor,
+                        backgroundColor: `${color}15`,
+                        color: color,
                       }}
                     >
                       <IconComponent className="w-4 h-4" />
                     </div>
                     <div className="min-w-0">
                       <p className="text-xs font-bold text-text-primary truncate">
-                        {expense.description}
+                        {expense.description || expense.categoryName}
                       </p>
                       <div className="flex items-center gap-2 text-[11px] text-text-muted mt-0.5">
                         <span>{expense.categoryName}</span>

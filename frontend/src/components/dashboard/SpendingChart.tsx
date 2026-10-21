@@ -72,6 +72,14 @@ export function SpendingChart({ data, periodLabel }: SpendingChartProps) {
           <div className="w-full h-[280px] rounded-xl bg-surface-muted/50 animate-pulse flex items-center justify-center text-xs text-text-muted">
             جاري تهيئة الرسم البياني...
           </div>
+        ) : data.length === 0 ? (
+          <div className="w-full h-[280px] rounded-xl border border-dashed border-border bg-surface-muted/20 flex flex-col items-center justify-center p-6 text-center space-y-2">
+            <BarChart3 className="w-8 h-8 text-text-muted opacity-50" />
+            <p className="text-xs font-bold text-text-primary">لا توجد حركات إنفاق لعرضها بالرسم البياني</p>
+            <p className="text-[11px] text-text-muted max-w-xs">
+              ستظهر وتيرة إنفاقك وتوزيع المصروفات هنا تلقائيًا فور تسجيل أي حركة مالية في هذه الدورة.
+            </p>
+          </div>
         ) : (
           <div className="w-full h-[280px]">
             <ResponsiveContainer width="100%" height="100%">

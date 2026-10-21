@@ -1,6 +1,6 @@
 import { prisma } from "../lib/prisma.js";
 import { AppError } from "../errors/app-error.js";
-import { resolveBudgetCycle } from "./budget-cycle.service.js";
+import { resolveBudgetCycle, toUTCDateOnly } from "./budget-cycle.service.js";
 import type {
   CreateExpenseInput,
   UpdateExpenseInput,
@@ -57,9 +57,17 @@ function formatExpense(expense: {
 }
 
 export async function fetchExpenses(userId: string, filters: ExpenseFilters) {
+  let categoryCondition: Prisma.ExpenseWhereInput = {};
+  if (filters.categoryId === "none" || filters.categoryId === "uncategorized") {
+    categoryCondition = { categoryId: null };
+  } else if (filters.categoryId) {
+    categoryCondition = { categoryId: filters.categoryId };
+  }
+
   const where: Prisma.ExpenseWhereInput = {
     userId,
-    ...(filters.categoryId ? { categoryId: filters.categoryId } : {}),
+    ...categoryCondition,
+    ...(filters.budgetCycleId ? { budgetCycleId: filters.budgetCycleId } : {}),
     ...((filters.startDate || filters.endDate)
       ? {
           expenseDate: {
@@ -82,6 +90,12 @@ export async function fetchExpenses(userId: string, filters: ExpenseFilters) {
   const order = filters.order ?? "desc";
 
   const total = await prisma.expense.count({ where });
+
+  const totalAmountAgg = await prisma.expense.aggregate({
+    where,
+    _sum: { amount: true },
+  });
+  const totalAmount = totalAmountAgg._sum.amount ? Number(totalAmountAgg._sum.amount) : 0;
 
   const page = filters.page;
   const limit = filters.limit;
@@ -114,6 +128,7 @@ export async function fetchExpenses(userId: string, filters: ExpenseFilters) {
       total,
       totalPages: Math.ceil(total / limit),
     },
+    totalAmount,
   };
 }
 
@@ -164,7 +179,7 @@ export async function addExpense(
     validCategoryId = category.id;
   }
 
-  const expenseDate = input.date;
+  const expenseDate = toUTCDateOnly(input.date);
   const budgetCycle = await resolveBudgetCycle(userId, expenseDate);
 
   const expense = await prisma.expense.create({
@@ -237,8 +252,9 @@ export async function updateExpense(
 
   const newDate = input.expenseDate ?? input.date;
   if (newDate) {
-    updatedExpenseDate = newDate;
-    const cycle = await resolveBudgetCycle(userId, newDate);
+    const dateOnly = toUTCDateOnly(newDate);
+    updatedExpenseDate = dateOnly;
+    const cycle = await resolveBudgetCycle(userId, dateOnly);
     updatedBudgetCycleId = cycle.id;
   }
 

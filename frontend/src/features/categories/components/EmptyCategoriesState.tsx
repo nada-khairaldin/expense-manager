@@ -87,7 +87,7 @@ export function EmptyCategoriesState({
         لم يتم إضافة أي تصنيفات بعد
       </h3>
       <p className="text-xs text-text-secondary max-w-md mt-1.5 mb-6 leading-relaxed">
-        ابدئي بإضافة تصنيفات لتنظيم مصروفاتك ومتابعة حدود الإنفاق.
+        ابدأ بإضافة تصنيفات لتنظيم مصروفاتك ومتابعة حدود الإنفاق.
       </p>
       {onOpenAddCategory && (
         <button

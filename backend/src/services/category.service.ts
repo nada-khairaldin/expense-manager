@@ -252,9 +252,9 @@ export async function removeCategory(
     return false;
   }
 
-  await prisma.$transaction(async (tx) => {
+  await prisma.$transaction([
     // 1. Ensure any historical expenses linked to this category preserve the snapshot name
-    await tx.expense.updateMany({
+    prisma.expense.updateMany({
       where: {
         categoryId: id,
         userId,
@@ -266,10 +266,10 @@ export async function removeCategory(
       data: {
         categoryNameSnapshot: category.name,
       },
-    });
+    }),
 
     // 2. Set categoryId to null so historical expenses remain intact without deletion
-    await tx.expense.updateMany({
+    prisma.expense.updateMany({
       where: {
         categoryId: id,
         userId,
@@ -277,18 +277,18 @@ export async function removeCategory(
       data: {
         categoryId: null,
       },
-    });
+    }),
 
     // 3. Delete any category budgets configured for this category
-    await tx.categoryBudget.deleteMany({
+    prisma.categoryBudget.deleteMany({
       where: { categoryId: id },
-    });
+    }),
 
     // 4. Delete the category record
-    await tx.category.delete({
+    prisma.category.delete({
       where: { id },
-    });
-  });
+    }),
+  ]);
 
   return true;
 }
