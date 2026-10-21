@@ -1,46 +1,86 @@
-export type BudgetStatusLevel = "excellent" | "warning" | "danger";
+export type BudgetThresholdStatus =
+  | "within_limit"
+  | "approaching_limit"
+  | "critical"
+  | "exceeded"
+  | "no_limit";
 
-export interface ExpenseItem {
-  id: string | number;
-  amount: number;
-  description: string | null;
-  date: string | Date;
-  categoryId: string | number | null;
-  categoryName: string;
-  categoryIcon?: string | null;
-  categoryColor?: string | null;
+export type WarningLevel = "normal" | "warning" | "danger" | "none";
+
+export interface DashboardBudget {
+  id: string;
+  startDate: string;
+  endDate: string;
+  budgetAmount: number;
+  totalExpenses: number;
+  remainingBudget: number;
+  consumptionPercentage: number;
+  isOverBudget: boolean;
+  status: BudgetThresholdStatus;
+  level: WarningLevel;
+  color: "green" | "yellow" | "red" | "gray";
+  warningMessage?: string;
 }
 
-export interface CategoryBudget {
-  id: number | string;
+export interface DashboardCategory {
+  id: string;
   name: string;
   icon: string;
   color: string;
   spent: number;
-  limit: number | null; // null if no limit configured
+  limit: number | null;
+  remaining: number | null;
   percentage: number | null;
-  status: "normal" | "warning" | "exceeded";
+  status: BudgetThresholdStatus;
+  level: WarningLevel;
+  colorStatus: "green" | "yellow" | "red" | "gray";
+  warningMessage?: string;
+  transactionCount: number;
 }
 
-export interface DailySpendingPoint {
+export interface DashboardDailySpendingPoint {
   dayLabel: string;
   fullDate: string;
   amount: number;
+  count: number;
 }
 
-export interface PeriodData {
-  id: "current" | "previous";
-  label: string;
-  periodDateRange: string;
-  isDemo: true;
-  budgetAmount: number;
-  totalExpenses: number;
-  remainingBudget: number;
-  budgetPercentageUsed: number;
-  budgetStatusText: string;
-  budgetStatusLevel: BudgetStatusLevel;
-  budgetNotes: string;
-  dailySpending: DailySpendingPoint[];
-  categories: CategoryBudget[];
-  recentExpenses: ExpenseItem[];
+export interface DashboardExpenseItem {
+  id: string;
+  amount: number;
+  categoryId: string | null;
+  categoryName: string;
+  categoryIcon: string | null;
+  categoryColor: string | null;
+  description: string | null;
+  date: string;
+  expenseDate: string;
 }
+
+export interface DashboardCycleMeta {
+  id: string;
+  label: string;
+  startDate: string;
+  endDate: string;
+}
+
+export interface DashboardData {
+  isSetupNeeded: boolean;
+  currency: string;
+  selectedPeriod: "current" | "previous";
+  periodLabel: string;
+  periodDateRange: string;
+  budget: DashboardBudget | null;
+  categories: DashboardCategory[];
+  dailySpending: DashboardDailySpendingPoint[];
+  recentExpenses: DashboardExpenseItem[];
+  availableCycles: {
+    current: DashboardCycleMeta | null;
+    previous: DashboardCycleMeta | null;
+  };
+}
+
+// Backward-compatibility aliases
+export type ExpenseItem = DashboardExpenseItem;
+export type CategoryBudget = DashboardCategory;
+export type DailySpendingPoint = DashboardDailySpendingPoint;

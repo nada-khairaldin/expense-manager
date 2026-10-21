@@ -13,34 +13,39 @@ import {
 import { useTheme } from "next-themes";
 import { DailySpendingPoint } from "@/features/dashboard/types";
 import { formatCurrency } from "@/lib/formatters/formatCurrency";
+import { getCurrencyConfig } from "@/config/currency";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/Card";
 import { BarChart3 } from "lucide-react";
 
 export interface SpendingChartProps {
   data: DailySpendingPoint[];
   periodLabel: string;
+  currency?: string;
 }
 
 interface CustomTooltipProps {
   active?: boolean;
   payload?: Array<{ value: number }>;
   label?: string;
+  currency?: string;
 }
 
-function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
+function CustomTooltip({ active, payload, label, currency }: CustomTooltipProps) {
   if (active && payload && payload.length > 0) {
     const value = payload[0].value;
     return (
       <div className="rounded-xl border border-border bg-surface p-3 shadow-lg text-xs space-y-1">
         <p className="font-semibold text-text-primary">{label}</p>
-        <p className="text-brand-teal font-bold">{formatCurrency(value)}</p>
+        <p className="text-brand-teal font-bold text-sm">
+          {formatCurrency(value, { currencyCode: currency })}
+        </p>
       </div>
     );
   }
   return null;
 }
 
-export function SpendingChart({ data, periodLabel }: SpendingChartProps) {
+export function SpendingChart({ data, periodLabel, currency }: SpendingChartProps) {
   const { resolvedTheme } = useTheme();
   const mounted = React.useSyncExternalStore(
     () => () => {},
@@ -53,16 +58,18 @@ export function SpendingChart({ data, periodLabel }: SpendingChartProps) {
   const gridColor = isDark ? "#23354E" : "#E2E8F0";
   const axisColor = isDark ? "#94A3B8" : "#5A6A80";
 
+  const currencyCfg = getCurrencyConfig(currency);
+
   return (
     <Card className="h-full flex flex-col justify-between">
       <CardHeader className="flex flex-row items-center justify-between pb-4">
         <div>
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className="flex items-center gap-2 text-base">
             <BarChart3 className="w-4 h-4 text-brand-teal" />
-            <span>توزيع الإنفاق حسب الفترات</span>
+            <span>توزيع الإنفاق اليومي</span>
           </CardTitle>
-          <CardDescription>
-            متابعة وتيرة المصروفات عبر فترات {periodLabel}
+          <CardDescription className="text-xs">
+            متابعة وتيرة المصروفات اليومية خلال {periodLabel}
           </CardDescription>
         </div>
       </CardHeader>
@@ -104,9 +111,11 @@ export function SpendingChart({ data, periodLabel }: SpendingChartProps) {
                   fontSize={11}
                   tickLine={false}
                   axisLine={false}
-                  tickFormatter={(val: number) => `₪ ${val >= 1000 ? `${(val / 1000).toFixed(1)}k` : val}`}
+                  tickFormatter={(val: number) =>
+                    `${currencyCfg.symbol} ${val >= 1000 ? `${(val / 1000).toFixed(1)}k` : val}`
+                  }
                 />
-                <Tooltip content={<CustomTooltip />} />
+                <Tooltip content={<CustomTooltip currency={currency} />} />
                 <Bar
                   dataKey="amount"
                   fill={barColor}

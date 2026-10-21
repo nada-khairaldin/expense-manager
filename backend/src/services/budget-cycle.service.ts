@@ -167,10 +167,13 @@ export async function formatBudgetCycleWithExpenses(
     _sum: { amount: true },
   });
 
-  const totalExpenses = expenseAgg._sum.amount ? Number(expenseAgg._sum.amount) : 0;
+  const totalExpenses = expenseAgg._sum.amount
+    ? Math.round(Number(expenseAgg._sum.amount) * 100) / 100
+    : 0;
   const budgetAmount = Number(cycle.budgetAmount);
-  const remainingBudget = Math.max(0, budgetAmount - totalExpenses);
-  const percentageUsed = budgetAmount > 0 ? Math.min(100, Math.round((totalExpenses / budgetAmount) * 100)) : 0;
+  const remainingBudget = Math.round((budgetAmount - totalExpenses) * 100) / 100;
+  const percentageUsed =
+    budgetAmount > 0 ? Math.round((totalExpenses / budgetAmount) * 1000) / 10 : 0;
   const today = toUTCDateOnly(new Date());
   const isCompleted = today.getTime() > cycle.endDate.getTime();
 

@@ -5,6 +5,7 @@ import categoryRoutes from "./routes/category.routes.js";
 import settingsRoutes from "./routes/settings.routes.js";
 import budgetCycleRoutes from "./routes/budget-cycle.routes.js";
 import reportRoutes from "./routes/report.routes.js";
+import dashboardRoutes from "./routes/dashboard.routes.js";
 import { errorMiddleware } from "./middlewares/error.middleware.js";
 
 const app = express();
@@ -37,6 +38,7 @@ app.use("/categories", categoryRoutes);
 app.use("/settings", settingsRoutes);
 app.use("/budget-cycles", budgetCycleRoutes);
 app.use("/reports", reportRoutes);
+app.use("/dashboard", dashboardRoutes);
 
 app.use(errorMiddleware);
 

@@ -57,6 +57,7 @@ export function useExpenses(filters: ExpenseFilters = {}) {
     queryClient.invalidateQueries({ queryKey: ["current-cycle"] });
     queryClient.invalidateQueries({ queryKey: ["reports"] });
     queryClient.invalidateQueries({ queryKey: ["report-budget-cycles"] });
+    queryClient.invalidateQueries({ queryKey: ["dashboard"] });
   };
 
   const createMutation = useMutation({

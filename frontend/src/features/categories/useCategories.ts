@@ -47,6 +47,8 @@ export function useCategories() {
         return [newCategory, ...filtered];
       });
       queryClient.invalidateQueries({ queryKey: ["categories"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+      queryClient.invalidateQueries({ queryKey: ["reports"] });
     },
   });
 
@@ -61,6 +63,8 @@ export function useCategories() {
         return prev.map((c) => (c.id === updatedCategory.id ? updatedCategory : c));
       });
       queryClient.invalidateQueries({ queryKey: ["categories"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+      queryClient.invalidateQueries({ queryKey: ["reports"] });
     },
   });
 
@@ -75,6 +79,8 @@ export function useCategories() {
         return prev.filter((c) => c.id !== deletedId);
       });
       queryClient.invalidateQueries({ queryKey: ["categories"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+      queryClient.invalidateQueries({ queryKey: ["reports"] });
     },
   });
 
