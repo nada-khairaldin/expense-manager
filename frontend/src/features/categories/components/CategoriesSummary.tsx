@@ -19,7 +19,7 @@ export function CategoriesSummary({ summary }: CategoriesSummaryProps) {
   const hasAlerts = summary.categoriesApproachingLimit > 0;
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-4">
       {/* 1. إجمالي التصنيفات */}
       <StatCard
         title="إجمالي التصنيفات"
@@ -33,12 +33,13 @@ export function CategoriesSummary({ summary }: CategoriesSummaryProps) {
             شاملة
           </Badge>
         }
-        hint="كافة التصنيفات المتاحة لتوزيع المصروفات"
+        hint="كافة التصنيفات المتاحة"
+        className="p-3.5 sm:p-5"
       />
 
       {/* 2. التصنيفات ذات حدود الإنفاق */}
       <StatCard
-        title="التصنيفات ذات حدود الإنفاق"
+        title="ذات حدود إنفاق"
         value={String(summary.categoriesWithLimit)}
         secondaryValue={`(${limitCoveragePercent}%)`}
         icon={ShieldCheck}
@@ -49,16 +50,17 @@ export function CategoriesSummary({ summary }: CategoriesSummaryProps) {
             مقيدة بسقف
           </Badge>
         }
-        hint="تصنيفات تخضع لرقابة ميزانية شهرية محددة"
+        hint="تخضع لرقابة ميزانية شهرية"
+        className="p-3.5 sm:p-5"
       />
 
       {/* 3. التصنيفات التي اقتربت من حد الإنفاق */}
       <StatCard
-        title="التصنيفات التي اقتربت من حد الإنفاق"
+        title="اقتربت من حد الإنفاق"
         value={String(summary.categoriesApproachingLimit)}
         secondaryValue={
           summary.categoriesExceededLimit > 0
-            ? `(منها ${summary.categoriesExceededLimit} تجاوزت الحد)`
+            ? `(${summary.categoriesExceededLimit} تجاوزت)`
             : undefined
         }
         icon={AlertTriangle}
@@ -68,10 +70,11 @@ export function CategoriesSummary({ summary }: CategoriesSummaryProps) {
         }
         badge={
           <Badge variant={hasAlerts ? "warning" : "success"} size="sm" dot>
-            {hasAlerts ? "استهلاك مرتفع (≥85%)" : "كل الحدود آمنة"}
+            {hasAlerts ? "استهلاك مرتفع" : "آمنة"}
           </Badge>
         }
-        hint="استهلكت 85% أو أكثر من الحد المالي المخصص"
+        hint="استهلكت ≥85% من سقف الميزانية"
+        className="col-span-2 sm:col-span-1 p-3.5 sm:p-5"
       />
     </div>
   );

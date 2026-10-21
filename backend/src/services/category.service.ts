@@ -1,9 +1,11 @@
 import { prisma } from "../lib/prisma.js";
 import { AppError } from "../errors/app-error.js";
+import { toUTCDateOnly } from "./budget-cycle.service.js";
 import type {
   CreateCategoryInput,
   UpdateCategoryInput,
 } from "../schemas/category.schema.js";
+import type { Prisma } from "../../generated/prisma/client.js";
 
 export type Category = {
   id: string;
@@ -11,16 +13,55 @@ export type Category = {
   name: string;
   icon: string | null;
   color: string | null;
+  monthlyLimit: number | null;
+  limit: number | null;
+  spent: number | null;
+  transactionCount: number;
   isArchived: boolean;
   createdAt: Date;
   updatedAt: Date;
 };
 
+function formatCategory(
+  raw: {
+    id: string;
+    userId: string;
+    name: string;
+    icon: string | null;
+    color: string | null;
+    monthlyLimit: Prisma.Decimal | null | number;
+    isArchived: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+  },
+  metrics?: { spent: number; transactionCount: number }
+): Category {
+  const limitNum =
+    raw.monthlyLimit !== null && raw.monthlyLimit !== undefined
+      ? Number(raw.monthlyLimit)
+      : null;
+
+  return {
+    id: raw.id,
+    userId: raw.userId,
+    name: raw.name,
+    icon: raw.icon,
+    color: raw.color,
+    monthlyLimit: limitNum,
+    limit: limitNum,
+    spent: metrics ? metrics.spent : 0,
+    transactionCount: metrics ? metrics.transactionCount : 0,
+    isArchived: raw.isArchived,
+    createdAt: raw.createdAt,
+    updatedAt: raw.updatedAt,
+  };
+}
+
 export async function fetchCategories(
   userId: string,
   includeArchived = false,
 ): Promise<Category[]> {
-  return prisma.category.findMany({
+  const categories = await prisma.category.findMany({
     where: {
       userId,
       ...(includeArchived ? {} : { isArchived: false }),
@@ -29,24 +70,94 @@ export async function fetchCategories(
       createdAt: "asc",
     },
   });
+
+  const today = toUTCDateOnly(new Date());
+  const activeCycle = await prisma.budgetCycle.findFirst({
+    where: {
+      userId,
+      startDate: { lte: today },
+      endDate: { gte: today },
+    },
+    select: { id: true },
+  });
+
+  const metricsMap = new Map<string, { spent: number; transactionCount: number }>();
+  if (activeCycle) {
+    const expensesGrouped = await prisma.expense.groupBy({
+      by: ["categoryId"],
+      where: {
+        userId,
+        budgetCycleId: activeCycle.id,
+        categoryId: { not: null },
+      },
+      _sum: { amount: true },
+      _count: { id: true },
+    });
+
+    for (const g of expensesGrouped) {
+      if (g.categoryId) {
+        metricsMap.set(g.categoryId, {
+          spent: g._sum.amount ? Number(g._sum.amount) : 0,
+          transactionCount: g._count.id ?? 0,
+        });
+      }
+    }
+  }
+
+  return categories.map((cat) => formatCategory(cat, metricsMap.get(cat.id)));
 }
 
 export async function fetchCategoryById(
   userId: string,
   id: string,
 ): Promise<Category | null> {
-  return prisma.category.findFirst({
+  const category = await prisma.category.findFirst({
     where: {
       id,
       userId,
     },
   });
+
+  if (!category) {
+    return null;
+  }
+
+  const today = toUTCDateOnly(new Date());
+  const activeCycle = await prisma.budgetCycle.findFirst({
+    where: {
+      userId,
+      startDate: { lte: today },
+      endDate: { gte: today },
+    },
+    select: { id: true },
+  });
+
+  let metrics: { spent: number; transactionCount: number } | undefined = undefined;
+  if (activeCycle) {
+    const agg = await prisma.expense.aggregate({
+      where: {
+        userId,
+        budgetCycleId: activeCycle.id,
+        categoryId: id,
+      },
+      _sum: { amount: true },
+      _count: { id: true },
+    });
+    metrics = {
+      spent: agg._sum.amount ? Number(agg._sum.amount) : 0,
+      transactionCount: agg._count.id ?? 0,
+    };
+  }
+
+  return formatCategory(category, metrics);
 }
 
 export async function addCategory(
   userId: string,
   input: CreateCategoryInput,
 ): Promise<Category> {
+  const limitVal = input.monthlyLimit !== undefined ? input.monthlyLimit : input.limit;
+
   const existing = await prisma.category.findUnique({
     where: {
       userId_name: {
@@ -58,26 +169,31 @@ export async function addCategory(
 
   if (existing) {
     if (existing.isArchived) {
-      return prisma.category.update({
+      const revived = await prisma.category.update({
         where: { id: existing.id },
         data: {
           isArchived: false,
           color: input.color ?? existing.color,
           icon: input.icon ?? existing.icon,
+          monthlyLimit: limitVal !== undefined ? limitVal : existing.monthlyLimit,
         },
       });
+      return formatCategory(revived);
     }
     throw new AppError(409, "Category with this name already exists");
   }
 
-  return prisma.category.create({
+  const category = await prisma.category.create({
     data: {
       userId,
       name: input.name,
       color: input.color ?? null,
       icon: input.icon ?? null,
+      monthlyLimit: limitVal !== undefined && limitVal !== null ? limitVal : null,
     },
   });
+
+  return formatCategory(category);
 }
 
 export async function updateCategory(
@@ -108,15 +224,20 @@ export async function updateCategory(
     }
   }
 
-  return prisma.category.update({
+  const limitVal = input.monthlyLimit !== undefined ? input.monthlyLimit : input.limit;
+
+  const updated = await prisma.category.update({
     where: { id },
     data: {
       ...(input.name !== undefined ? { name: input.name } : {}),
       ...(input.color !== undefined ? { color: input.color } : {}),
       ...(input.icon !== undefined ? { icon: input.icon } : {}),
+      ...(limitVal !== undefined ? { monthlyLimit: limitVal } : {}),
       ...(input.isArchived !== undefined ? { isArchived: input.isArchived } : {}),
     },
   });
+
+  return formatCategory(updated);
 }
 
 export async function removeCategory(
@@ -125,29 +246,49 @@ export async function removeCategory(
 ): Promise<boolean> {
   const category = await prisma.category.findFirst({
     where: { id, userId },
-    include: {
-      _count: {
-        select: { expenses: true },
-      },
-    },
   });
 
   if (!category) {
     return false;
   }
 
-  // If category is linked to expenses, archive it so historical records remain intact
-  if (category._count.expenses > 0) {
-    await prisma.category.update({
-      where: { id },
-      data: { isArchived: true },
+  await prisma.$transaction(async (tx) => {
+    // 1. Ensure any historical expenses linked to this category preserve the snapshot name
+    await tx.expense.updateMany({
+      where: {
+        categoryId: id,
+        userId,
+        OR: [
+          { categoryNameSnapshot: "" },
+          { categoryNameSnapshot: "غير مصنف" },
+        ],
+      },
+      data: {
+        categoryNameSnapshot: category.name,
+      },
     });
-    return true;
-  }
 
-  // Otherwise, hard delete
-  await prisma.category.delete({
-    where: { id },
+    // 2. Set categoryId to null so historical expenses remain intact without deletion
+    await tx.expense.updateMany({
+      where: {
+        categoryId: id,
+        userId,
+      },
+      data: {
+        categoryId: null,
+      },
+    });
+
+    // 3. Delete any category budgets configured for this category
+    await tx.categoryBudget.deleteMany({
+      where: { categoryId: id },
+    });
+
+    // 4. Delete the category record
+    await tx.category.delete({
+      where: { id },
+    });
   });
+
   return true;
 }

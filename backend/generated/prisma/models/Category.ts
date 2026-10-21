@@ -20,8 +20,18 @@ export type CategoryModel = runtime.Types.Result.DefaultSelection<Prisma.$Catego
 
 export type AggregateCategory = {
   _count: CategoryCountAggregateOutputType | null
+  _avg: CategoryAvgAggregateOutputType | null
+  _sum: CategorySumAggregateOutputType | null
   _min: CategoryMinAggregateOutputType | null
   _max: CategoryMaxAggregateOutputType | null
+}
+
+export type CategoryAvgAggregateOutputType = {
+  monthlyLimit: runtime.Decimal | null
+}
+
+export type CategorySumAggregateOutputType = {
+  monthlyLimit: runtime.Decimal | null
 }
 
 export type CategoryMinAggregateOutputType = {
@@ -30,6 +40,7 @@ export type CategoryMinAggregateOutputType = {
   name: string | null
   icon: string | null
   color: string | null
+  monthlyLimit: runtime.Decimal | null
   isArchived: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -41,6 +52,7 @@ export type CategoryMaxAggregateOutputType = {
   name: string | null
   icon: string | null
   color: string | null
+  monthlyLimit: runtime.Decimal | null
   isArchived: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -52,6 +64,7 @@ export type CategoryCountAggregateOutputType = {
   name: number
   icon: number
   color: number
+  monthlyLimit: number
   isArchived: number
   createdAt: number
   updatedAt: number
@@ -59,12 +72,21 @@ export type CategoryCountAggregateOutputType = {
 }
 
 
+export type CategoryAvgAggregateInputType = {
+  monthlyLimit?: true
+}
+
+export type CategorySumAggregateInputType = {
+  monthlyLimit?: true
+}
+
 export type CategoryMinAggregateInputType = {
   id?: true
   userId?: true
   name?: true
   icon?: true
   color?: true
+  monthlyLimit?: true
   isArchived?: true
   createdAt?: true
   updatedAt?: true
@@ -76,6 +98,7 @@ export type CategoryMaxAggregateInputType = {
   name?: true
   icon?: true
   color?: true
+  monthlyLimit?: true
   isArchived?: true
   createdAt?: true
   updatedAt?: true
@@ -87,6 +110,7 @@ export type CategoryCountAggregateInputType = {
   name?: true
   icon?: true
   color?: true
+  monthlyLimit?: true
   isArchived?: true
   createdAt?: true
   updatedAt?: true
@@ -131,6 +155,18 @@ export type CategoryAggregateArgs<ExtArgs extends runtime.Types.Extensions.Inter
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: CategoryAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: CategorySumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: CategoryMinAggregateInputType
@@ -161,6 +197,8 @@ export type CategoryGroupByArgs<ExtArgs extends runtime.Types.Extensions.Interna
   take?: number
   skip?: number
   _count?: CategoryCountAggregateInputType | true
+  _avg?: CategoryAvgAggregateInputType
+  _sum?: CategorySumAggregateInputType
   _min?: CategoryMinAggregateInputType
   _max?: CategoryMaxAggregateInputType
 }
@@ -171,10 +209,13 @@ export type CategoryGroupByOutputType = {
   name: string
   icon: string | null
   color: string | null
+  monthlyLimit: runtime.Decimal | null
   isArchived: boolean
   createdAt: Date
   updatedAt: Date
   _count: CategoryCountAggregateOutputType | null
+  _avg: CategoryAvgAggregateOutputType | null
+  _sum: CategorySumAggregateOutputType | null
   _min: CategoryMinAggregateOutputType | null
   _max: CategoryMaxAggregateOutputType | null
 }
@@ -203,6 +244,7 @@ export type CategoryWhereInput = {
   name?: Prisma.StringFilter<"Category"> | string
   icon?: Prisma.StringNullableFilter<"Category"> | string | null
   color?: Prisma.StringNullableFilter<"Category"> | string | null
+  monthlyLimit?: Prisma.DecimalNullableFilter<"Category"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isArchived?: Prisma.BoolFilter<"Category"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Category"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Category"> | Date | string
@@ -217,6 +259,7 @@ export type CategoryOrderByWithRelationInput = {
   name?: Prisma.SortOrder
   icon?: Prisma.SortOrderInput | Prisma.SortOrder
   color?: Prisma.SortOrderInput | Prisma.SortOrder
+  monthlyLimit?: Prisma.SortOrderInput | Prisma.SortOrder
   isArchived?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -235,6 +278,7 @@ export type CategoryWhereUniqueInput = Prisma.AtLeast<{
   name?: Prisma.StringFilter<"Category"> | string
   icon?: Prisma.StringNullableFilter<"Category"> | string | null
   color?: Prisma.StringNullableFilter<"Category"> | string | null
+  monthlyLimit?: Prisma.DecimalNullableFilter<"Category"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isArchived?: Prisma.BoolFilter<"Category"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Category"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Category"> | Date | string
@@ -249,12 +293,15 @@ export type CategoryOrderByWithAggregationInput = {
   name?: Prisma.SortOrder
   icon?: Prisma.SortOrderInput | Prisma.SortOrder
   color?: Prisma.SortOrderInput | Prisma.SortOrder
+  monthlyLimit?: Prisma.SortOrderInput | Prisma.SortOrder
   isArchived?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.CategoryCountOrderByAggregateInput
+  _avg?: Prisma.CategoryAvgOrderByAggregateInput
   _max?: Prisma.CategoryMaxOrderByAggregateInput
   _min?: Prisma.CategoryMinOrderByAggregateInput
+  _sum?: Prisma.CategorySumOrderByAggregateInput
 }
 
 export type CategoryScalarWhereWithAggregatesInput = {
@@ -266,6 +313,7 @@ export type CategoryScalarWhereWithAggregatesInput = {
   name?: Prisma.StringWithAggregatesFilter<"Category"> | string
   icon?: Prisma.StringNullableWithAggregatesFilter<"Category"> | string | null
   color?: Prisma.StringNullableWithAggregatesFilter<"Category"> | string | null
+  monthlyLimit?: Prisma.DecimalNullableWithAggregatesFilter<"Category"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isArchived?: Prisma.BoolWithAggregatesFilter<"Category"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Category"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Category"> | Date | string
@@ -276,6 +324,7 @@ export type CategoryCreateInput = {
   name: string
   icon?: string | null
   color?: string | null
+  monthlyLimit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isArchived?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -290,6 +339,7 @@ export type CategoryUncheckedCreateInput = {
   name: string
   icon?: string | null
   color?: string | null
+  monthlyLimit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isArchived?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -302,6 +352,7 @@ export type CategoryUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  monthlyLimit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -316,6 +367,7 @@ export type CategoryUncheckedUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  monthlyLimit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -329,6 +381,7 @@ export type CategoryCreateManyInput = {
   name: string
   icon?: string | null
   color?: string | null
+  monthlyLimit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isArchived?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -339,6 +392,7 @@ export type CategoryUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  monthlyLimit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -350,6 +404,7 @@ export type CategoryUncheckedUpdateManyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  monthlyLimit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -376,9 +431,14 @@ export type CategoryCountOrderByAggregateInput = {
   name?: Prisma.SortOrder
   icon?: Prisma.SortOrder
   color?: Prisma.SortOrder
+  monthlyLimit?: Prisma.SortOrder
   isArchived?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type CategoryAvgOrderByAggregateInput = {
+  monthlyLimit?: Prisma.SortOrder
 }
 
 export type CategoryMaxOrderByAggregateInput = {
@@ -387,6 +447,7 @@ export type CategoryMaxOrderByAggregateInput = {
   name?: Prisma.SortOrder
   icon?: Prisma.SortOrder
   color?: Prisma.SortOrder
+  monthlyLimit?: Prisma.SortOrder
   isArchived?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -398,9 +459,14 @@ export type CategoryMinOrderByAggregateInput = {
   name?: Prisma.SortOrder
   icon?: Prisma.SortOrder
   color?: Prisma.SortOrder
+  monthlyLimit?: Prisma.SortOrder
   isArchived?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type CategorySumOrderByAggregateInput = {
+  monthlyLimit?: Prisma.SortOrder
 }
 
 export type CategoryScalarRelationFilter = {
@@ -494,6 +560,7 @@ export type CategoryCreateWithoutUserInput = {
   name: string
   icon?: string | null
   color?: string | null
+  monthlyLimit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isArchived?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -506,6 +573,7 @@ export type CategoryUncheckedCreateWithoutUserInput = {
   name: string
   icon?: string | null
   color?: string | null
+  monthlyLimit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isArchived?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -548,6 +616,7 @@ export type CategoryScalarWhereInput = {
   name?: Prisma.StringFilter<"Category"> | string
   icon?: Prisma.StringNullableFilter<"Category"> | string | null
   color?: Prisma.StringNullableFilter<"Category"> | string | null
+  monthlyLimit?: Prisma.DecimalNullableFilter<"Category"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isArchived?: Prisma.BoolFilter<"Category"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Category"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Category"> | Date | string
@@ -558,6 +627,7 @@ export type CategoryCreateWithoutCategoryBudgetsInput = {
   name: string
   icon?: string | null
   color?: string | null
+  monthlyLimit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isArchived?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -571,6 +641,7 @@ export type CategoryUncheckedCreateWithoutCategoryBudgetsInput = {
   name: string
   icon?: string | null
   color?: string | null
+  monthlyLimit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isArchived?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -598,6 +669,7 @@ export type CategoryUpdateWithoutCategoryBudgetsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  monthlyLimit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -611,6 +683,7 @@ export type CategoryUncheckedUpdateWithoutCategoryBudgetsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  monthlyLimit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -622,6 +695,7 @@ export type CategoryCreateWithoutExpensesInput = {
   name: string
   icon?: string | null
   color?: string | null
+  monthlyLimit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isArchived?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -635,6 +709,7 @@ export type CategoryUncheckedCreateWithoutExpensesInput = {
   name: string
   icon?: string | null
   color?: string | null
+  monthlyLimit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isArchived?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -662,6 +737,7 @@ export type CategoryUpdateWithoutExpensesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  monthlyLimit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -675,6 +751,7 @@ export type CategoryUncheckedUpdateWithoutExpensesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  monthlyLimit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -686,6 +763,7 @@ export type CategoryCreateManyUserInput = {
   name: string
   icon?: string | null
   color?: string | null
+  monthlyLimit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isArchived?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -696,6 +774,7 @@ export type CategoryUpdateWithoutUserInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  monthlyLimit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -708,6 +787,7 @@ export type CategoryUncheckedUpdateWithoutUserInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  monthlyLimit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -720,6 +800,7 @@ export type CategoryUncheckedUpdateManyWithoutUserInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  monthlyLimit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -771,6 +852,7 @@ export type CategorySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   name?: boolean
   icon?: boolean
   color?: boolean
+  monthlyLimit?: boolean
   isArchived?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -786,6 +868,7 @@ export type CategorySelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   name?: boolean
   icon?: boolean
   color?: boolean
+  monthlyLimit?: boolean
   isArchived?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -798,6 +881,7 @@ export type CategorySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   name?: boolean
   icon?: boolean
   color?: boolean
+  monthlyLimit?: boolean
   isArchived?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -810,12 +894,13 @@ export type CategorySelectScalar = {
   name?: boolean
   icon?: boolean
   color?: boolean
+  monthlyLimit?: boolean
   isArchived?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type CategoryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "name" | "icon" | "color" | "isArchived" | "createdAt" | "updatedAt", ExtArgs["result"]["category"]>
+export type CategoryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "name" | "icon" | "color" | "monthlyLimit" | "isArchived" | "createdAt" | "updatedAt", ExtArgs["result"]["category"]>
 export type CategoryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   expenses?: boolean | Prisma.Category$expensesArgs<ExtArgs>
@@ -842,6 +927,7 @@ export type $CategoryPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     name: string
     icon: string | null
     color: string | null
+    monthlyLimit: runtime.Decimal | null
     isArchived: boolean
     createdAt: Date
     updatedAt: Date
@@ -1276,6 +1362,7 @@ export interface CategoryFieldRefs {
   readonly name: Prisma.FieldRef<"Category", 'String'>
   readonly icon: Prisma.FieldRef<"Category", 'String'>
   readonly color: Prisma.FieldRef<"Category", 'String'>
+  readonly monthlyLimit: Prisma.FieldRef<"Category", 'Decimal'>
   readonly isArchived: Prisma.FieldRef<"Category", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"Category", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Category", 'DateTime'>

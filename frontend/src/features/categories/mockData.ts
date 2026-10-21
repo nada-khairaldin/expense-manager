@@ -2,12 +2,11 @@ import { CategoryItem } from "./types";
 
 /**
  * Dedicated mock data for the Categories feature.
- * Strictly aligned with the dashboard data model while showcasing
- * all financial states (within limit, approaching limit, exceeded, no limit, unavailable).
+ * Retained strictly for isolated test fixtures. Not used in production flows.
  */
 export const initialMockCategories: CategoryItem[] = [
   {
-    id: 1,
+    id: "1",
     name: "البقالة والتموين",
     icon: "ShoppingCart",
     color: "#16856B",
@@ -18,7 +17,7 @@ export const initialMockCategories: CategoryItem[] = [
     createdAt: "2026-09-01",
   },
   {
-    id: 2,
+    id: "2",
     name: "سكن وفواتير وخدمات",
     icon: "Home",
     color: "#D5A64A",
@@ -29,7 +28,7 @@ export const initialMockCategories: CategoryItem[] = [
     createdAt: "2026-09-01",
   },
   {
-    id: 3,
+    id: "3",
     name: "المواصلات والنقل",
     icon: "Car",
     color: "#3B82F6",
@@ -40,7 +39,7 @@ export const initialMockCategories: CategoryItem[] = [
     createdAt: "2026-09-01",
   },
   {
-    id: 4,
+    id: "4",
     name: "المطاعم والوجبات",
     icon: "Utensils",
     color: "#EC4899",
@@ -51,7 +50,7 @@ export const initialMockCategories: CategoryItem[] = [
     createdAt: "2026-09-05",
   },
   {
-    id: 5,
+    id: "5",
     name: "الصحة والرعاية الطبية",
     icon: "HeartPulse",
     color: "#10B981",
@@ -62,7 +61,7 @@ export const initialMockCategories: CategoryItem[] = [
     createdAt: "2026-09-10",
   },
   {
-    id: 6,
+    id: "6",
     name: "التعليم والدورات",
     icon: "GraduationCap",
     color: "#8B5CF6",
@@ -73,7 +72,7 @@ export const initialMockCategories: CategoryItem[] = [
     createdAt: "2026-09-15",
   },
   {
-    id: 7,
+    id: "7",
     name: "صيانة وأجهزة منزلية",
     icon: "Wrench",
     color: "#F59E0B",
@@ -84,7 +83,7 @@ export const initialMockCategories: CategoryItem[] = [
     createdAt: "2026-09-20",
   },
   {
-    id: 8,
+    id: "8",
     name: "مصاريف عامة وطارئة",
     icon: "Layers",
     color: "#64748B",
@@ -95,7 +94,7 @@ export const initialMockCategories: CategoryItem[] = [
     createdAt: "2026-09-22",
   },
   {
-    id: 9,
+    id: "9",
     name: "ملابس ومقتنيات شخصية",
     icon: "ShoppingBag",
     color: "#06B6D4",

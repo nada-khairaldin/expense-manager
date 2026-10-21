@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { CategoryItem, SpendingLimitFilter, CategorySortOption } from "@/features/categories/types";
-import { useCategoriesStore } from "@/features/categories/useCategoriesStore";
+import { useCategories } from "@/features/categories/useCategories";
 import {
   computeCategoriesSummary,
   filterAndSortCategories,
@@ -15,11 +15,21 @@ import { CategoryFormModal } from "@/features/categories/components/CategoryForm
 import { QuickEditLimitModal } from "@/features/categories/components/QuickEditLimitModal";
 import { DeleteCategoryDialog } from "@/features/categories/components/DeleteCategoryDialog";
 import { EmptyCategoriesState } from "@/features/categories/components/EmptyCategoriesState";
-import { DemoDataNotice } from "@/components/dashboard/DemoDataNotice";
-import { CheckCircle2, Info } from "lucide-react";
+import { CategorySkeleton } from "@/features/categories/components/CategorySkeleton";
+import { CheckCircle2, AlertCircle, Info } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export default function CategoriesPage() {
-  const { categories, saveCategories, resetCategories } = useCategoriesStore();
+  const {
+    categories,
+    isLoading,
+    isError,
+    error,
+    refetch,
+    createCategory,
+    updateCategory,
+    deleteCategory,
+  } = useCategories();
 
   // Filter & Search states
   const [searchQuery, setSearchQuery] = React.useState("");
@@ -37,13 +47,13 @@ export default function CategoriesPage() {
   const [categoryToDelete, setCategoryToDelete] = React.useState<CategoryItem | null>(null);
 
   // User feedback toast
-  const [toastMessage, setToastMessage] = React.useState<string | null>(null);
+  const [toast, setToast] = React.useState<{ message: string; type: "success" | "error" } | null>(null);
 
-  const showToast = React.useCallback((message: string) => {
-    setToastMessage(message);
+  const showToast = React.useCallback((message: string, type: "success" | "error" = "success") => {
+    setToast({ message, type });
     const timer = setTimeout(() => {
-      setToastMessage((prev) => (prev === message ? null : prev));
-    }, 4000);
+      setToast((prev) => (prev?.message === message ? null : prev));
+    }, 4500);
     return () => clearTimeout(timer);
   }, []);
 
@@ -58,117 +68,120 @@ export default function CategoriesPage() {
   }, [categories, searchQuery, activeFilter, activeSort]);
 
   // Handler: Create or Update Category
-  const handleSaveCategory = (data: {
+  const handleSaveCategory = async (data: {
     name: string;
     icon: string;
     color: string;
     description?: string;
     limit: number | null;
   }) => {
-    if (categoryToEdit) {
-      // Edit existing
-      const updated = categories.map((cat) => {
-        if (cat.id === categoryToEdit.id) {
-          return {
-            ...cat,
-            name: data.name,
-            icon: data.icon,
-            color: data.color,
-            description: data.description,
-            limit: data.limit,
-          };
-        }
-        return cat;
-      });
-      saveCategories(updated);
-      showToast(`تم تحديث بيانات تصنيف "${data.name}" بنجاح.`);
-    } else {
-      // Add new
-      const nextId = Math.max(0, ...categories.map((c) => c.id)) + 1;
-      const newCategory: CategoryItem = {
-        id: nextId,
-        name: data.name,
-        icon: data.icon,
-        color: data.color,
-        description: data.description,
-        limit: data.limit,
-        spent: 0, // newly created category has 0 spending in this cycle
-        transactionCount: 0,
-        createdAt: new Date().toISOString().split("T")[0],
-      };
-      saveCategories([newCategory, ...categories]);
-      showToast(`تمت إضافة تصنيف "${data.name}" بنجاح.`);
+    try {
+      if (categoryToEdit) {
+        await updateCategory(categoryToEdit.id, {
+          name: data.name,
+          icon: data.icon,
+          color: data.color,
+          description: data.description,
+          limit: data.limit,
+          monthlyLimit: data.limit,
+        });
+        showToast(`تم تحديث بيانات تصنيف "${data.name}" بنجاح.`);
+      } else {
+        await createCategory({
+          name: data.name,
+          icon: data.icon,
+          color: data.color,
+          description: data.description,
+          limit: data.limit,
+          monthlyLimit: data.limit,
+        });
+        showToast(`تمت إضافة تصنيف "${data.name}" بنجاح.`);
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "تعذر حفظ بيانات التصنيف";
+      showToast(message, "error");
+      throw err;
     }
   };
 
   // Handler: Quick Update Limit
-  const handleUpdateLimit = (categoryId: number, newLimit: number | null) => {
-    const updated = categories.map((cat) => {
-      if (cat.id === categoryId) {
-        return {
-          ...cat,
-          limit: newLimit,
-        };
-      }
-      return cat;
-    });
-    saveCategories(updated);
-    const catName = categories.find((c) => c.id === categoryId)?.name ?? "";
-    showToast(
-      newLimit !== null
-        ? `تم تحديث سقف ميزانية "${catName}" بنجاح.`
-        : `تم إلغاء سقف ميزانية "${catName}".`
-    );
+  const handleUpdateLimit = async (categoryId: string, newLimit: number | null) => {
+    try {
+      await updateCategory(categoryId, {
+        limit: newLimit,
+        monthlyLimit: newLimit,
+      });
+      const catName = categories.find((c) => c.id === categoryId)?.name ?? "";
+      showToast(
+        newLimit !== null
+          ? `تم تحديث سقف ميزانية "${catName}" بنجاح.`
+          : `تم إلغاء سقف ميزانية "${catName}".`
+      );
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "تعذر تحديث سقف الميزانية";
+      showToast(message, "error");
+      throw err;
+    }
   };
 
   // Handler: Delete Category
-  const handleConfirmDelete = (categoryId: number) => {
-    const target = categories.find((c) => c.id === categoryId);
-    const updated = categories.filter((cat) => cat.id !== categoryId);
-    saveCategories(updated);
-    showToast(`تم حذف تصنيف "${target?.name ?? ""}".`);
-  };
-
-  // Handler: Reset Demo Data
-  const handleResetDemoData = () => {
-    resetCategories();
-    setSearchQuery("");
-    setActiveFilter("all");
-    setActiveSort("name");
-    showToast("تمت استعادة بيانات التصنيفات الافتراضية بنجاح.");
+  const handleConfirmDelete = async (categoryId: string) => {
+    try {
+      const target = categories.find((c) => c.id === categoryId);
+      await deleteCategory(categoryId);
+      showToast(`تم حذف تصنيف "${target?.name ?? ""}".`);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "تعذر حذف التصنيف";
+      showToast(message, "error");
+      throw err;
+    }
   };
 
   return (
     <div className="space-y-6">
-      {/* 1. Subtle Demo Data Notice */}
-      <DemoDataNotice />
-
       {/* Floating Action Feedback Notification */}
-      {toastMessage && (
+      {toast && (
         <div
           role="status"
           aria-live="polite"
-          className="flex items-center gap-2 p-3 rounded-xl border border-brand-teal/30 bg-brand-teal/10 text-brand-teal text-xs font-semibold shadow-md animate-in fade-in slide-in-from-top-2 duration-200"
+          className={cn(
+            "fixed bottom-20 lg:bottom-6 start-4 end-4 sm:start-auto sm:end-6 sm:w-96 z-40 flex items-center gap-3 p-3.5 rounded-2xl border bg-surface text-xs font-bold shadow-xl animate-in fade-in slide-in-from-bottom-3 duration-200",
+            toast.type === "error"
+              ? "border-status-danger/40 text-status-danger"
+              : "border-brand-teal/40 text-brand-primary dark:text-foreground"
+          )}
         >
-          <CheckCircle2 className="w-4 h-4 shrink-0" />
-          <span>{toastMessage}</span>
+          <div
+            className={cn(
+              "w-7 h-7 rounded-full flex items-center justify-center shrink-0",
+              toast.type === "error"
+                ? "bg-status-danger/15 text-status-danger"
+                : "bg-brand-teal/15 text-brand-teal"
+            )}
+          >
+            {toast.type === "error" ? (
+              <AlertCircle className="w-4 h-4" />
+            ) : (
+              <CheckCircle2 className="w-4 h-4" />
+            )}
+          </div>
+          <span className="flex-1 leading-snug">{toast.message}</span>
         </div>
       )}
 
-      {/* 2. Page Header */}
+      {/* 1. Page Header */}
       <CategoriesHeader
         onOpenAddCategory={() => {
           setCategoryToEdit(null);
           setIsFormModalOpen(true);
         }}
-        onResetDemoData={handleResetDemoData}
         totalCategories={categories.length}
       />
 
-      {/* 3. Summary Overview Cards */}
+      {/* 2. Summary Overview Cards */}
       <CategoriesSummary summary={summary} />
 
-      {/* 4. Search & Filtering Toolbar */}
+      {/* 3. Search & Filtering Toolbar */}
       <CategoriesToolbar
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
@@ -185,9 +198,17 @@ export default function CategoriesPage() {
         }}
       />
 
-      {/* 5. Main Category List / States */}
+      {/* 4. Main Category List / States */}
       <div>
-        {categories.length === 0 ? (
+        {isLoading && categories.length === 0 ? (
+          <CategorySkeleton />
+        ) : isError ? (
+          <EmptyCategoriesState
+            type="error"
+            errorMessage={error || undefined}
+            onRetry={() => refetch()}
+          />
+        ) : categories.length === 0 ? (
           <EmptyCategoriesState
             type="no_categories"
             onOpenAddCategory={() => {
@@ -229,7 +250,7 @@ export default function CategoriesPage() {
         )}
       </div>
 
-      {/* 6. Contextual Help / Design Notice */}
+      {/* 5. Contextual Help Notice */}
       <div className="p-4 rounded-2xl border border-border bg-surface-muted/30 text-xs text-text-secondary flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <Info className="w-4 h-4 text-brand-teal shrink-0" />
@@ -238,11 +259,11 @@ export default function CategoriesPage() {
           </span>
         </div>
         <span className="text-[11px] font-semibold text-text-muted shrink-0">
-          المرحلة 3: إدارة التصنيفات
+          إدارة التصنيفات
         </span>
       </div>
 
-      {/* 7. Dialogs & Modals */}
+      {/* 6. Dialogs & Modals */}
       {/* Add / Edit Category Modal */}
       <CategoryFormModal
         isOpen={isFormModalOpen}

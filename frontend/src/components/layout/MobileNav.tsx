@@ -26,7 +26,7 @@ export function MobileNav() {
 
   return (
     <nav
-      className="lg:hidden fixed bottom-0 inset-x-0 z-30 bg-surface/95 backdrop-blur border-t border-border py-2 px-2 transition-colors select-none"
+      className="lg:hidden fixed bottom-0 inset-x-0 z-30 bg-surface/95 backdrop-blur-md border-t border-border pt-1.5 pb-safe px-2 transition-colors select-none shadow-lg"
       aria-label="شريط التنقل السفلي للهواتف"
     >
       <div className="flex items-center justify-around max-w-md mx-auto">
@@ -39,24 +39,29 @@ export function MobileNav() {
               key={item.href}
               href={item.href}
               className={cn(
-                "flex flex-col items-center justify-center py-1 px-2.5 rounded-xl text-[10px] font-semibold transition-all relative",
+                "flex flex-col items-center justify-center min-w-[52px] min-h-[48px] py-1 px-1.5 rounded-xl text-[10px] font-semibold transition-all relative active:scale-95 touch-manipulation",
                 isActive
-                  ? "text-brand-teal dark:text-brand-teal font-bold"
+                  ? "text-brand-teal dark:text-brand-teal font-extrabold"
                   : "text-text-muted hover:text-text-primary"
               )}
               aria-current={isActive ? "page" : undefined}
             >
               <div
                 className={cn(
-                  "p-1.5 rounded-lg mb-0.5 transition-colors",
+                  "p-1.5 rounded-xl mb-0.5 transition-colors relative flex items-center justify-center",
                   isActive
-                    ? "bg-brand-teal/10 dark:bg-brand-teal/20"
-                    : "bg-transparent"
+                    ? "bg-brand-teal/15 dark:bg-brand-teal/25 text-brand-teal"
+                    : "bg-transparent text-text-muted"
                 )}
               >
                 <Icon className="w-4 h-4" />
+                {isActive && (
+                  <span className="absolute -top-0.5 -end-0.5 w-1.5 h-1.5 rounded-full bg-brand-teal" />
+                )}
               </div>
-              <span className="truncate max-w-[55px] text-center">{item.title}</span>
+              <span className="truncate max-w-[58px] text-center leading-none mt-0.5">
+                {item.title}
+              </span>
             </Link>
           );
         })}

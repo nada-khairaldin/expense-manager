@@ -17,7 +17,7 @@ export function PeriodSelector({
   return (
     <div
       className={cn(
-        "inline-flex items-center p-1 rounded-xl border border-border bg-surface text-xs shadow-sm",
+        "flex w-full sm:w-auto items-center p-1 rounded-2xl border border-border bg-surface text-xs shadow-xs",
         className
       )}
       role="group"
@@ -27,32 +27,32 @@ export function PeriodSelector({
         type="button"
         onClick={() => onSelectPeriod("current")}
         className={cn(
-          "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium transition-all",
+          "flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 min-h-[38px] rounded-xl font-bold transition-all active:scale-95 touch-manipulation text-[11px] sm:text-xs",
           currentPeriodId === "current"
-            ? "bg-brand-primary text-white shadow-sm"
+            ? "bg-brand-primary text-white shadow-xs dark:bg-brand-teal"
             : "text-text-secondary hover:text-foreground hover:bg-surface-muted"
         )}
         aria-pressed={currentPeriodId === "current"}
       >
-        <Calendar className="w-3.5 h-3.5" />
-        <span>دورة أكتوبر (الحالية)</span>
-        {currentPeriodId === "current" && <Check className="w-3 h-3 ms-1" />}
+        <Calendar className="w-3.5 h-3.5 shrink-0" />
+        <span className="truncate">دورة أكتوبر (الحالية)</span>
+        {currentPeriodId === "current" && <Check className="w-3 h-3 ms-1 shrink-0" />}
       </button>
 
       <button
         type="button"
         onClick={() => onSelectPeriod("previous")}
         className={cn(
-          "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium transition-all",
+          "flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3 py-2 min-h-[38px] rounded-xl font-bold transition-all active:scale-95 touch-manipulation text-[11px] sm:text-xs",
           currentPeriodId === "previous"
-            ? "bg-brand-primary text-white shadow-sm"
+            ? "bg-brand-primary text-white shadow-xs dark:bg-brand-teal"
             : "text-text-secondary hover:text-foreground hover:bg-surface-muted"
         )}
         aria-pressed={currentPeriodId === "previous"}
       >
-        <Calendar className="w-3.5 h-3.5" />
-        <span>دورة سبتمبر (السابقة)</span>
-        {currentPeriodId === "previous" && <Check className="w-3 h-3 ms-1" />}
+        <Calendar className="w-3.5 h-3.5 shrink-0" />
+        <span className="truncate">دورة سبتمبر (السابقة)</span>
+        {currentPeriodId === "previous" && <Check className="w-3 h-3 ms-1 shrink-0" />}
       </button>
     </div>
   );

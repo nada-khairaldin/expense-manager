@@ -120,6 +120,7 @@ export const CategoryScalarFieldEnum = {
   name: 'name',
   icon: 'icon',
   color: 'color',
+  monthlyLimit: 'monthlyLimit',
   isArchived: 'isArchived',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'

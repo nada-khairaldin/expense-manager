@@ -108,7 +108,7 @@ export function CategoryCard({
   return (
     <div
       className={cn(
-        "group relative flex flex-col justify-between p-5 rounded-2xl border border-border bg-surface text-foreground shadow-sm hover:shadow-md hover:border-brand-teal/40 transition-all",
+        "group relative flex flex-col justify-between p-4 sm:p-5 rounded-2xl border border-border bg-surface text-foreground shadow-sm hover:shadow-md hover:border-brand-teal/40 transition-all",
         status === "exceeded" && "border-status-danger/40 dark:border-status-danger/30"
       )}
     >
@@ -145,7 +145,7 @@ export function CategoryCard({
             <button
               type="button"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="p-1.5 rounded-lg text-text-muted hover:text-foreground hover:bg-surface-muted transition-colors focus:outline-none focus:ring-2 focus:ring-brand-teal"
+              className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl flex items-center justify-center text-text-muted hover:text-foreground hover:bg-surface-muted active:scale-95 transition-all focus:outline-none focus:ring-2 focus:ring-brand-teal"
               aria-expanded={isMenuOpen}
               aria-label={`خيارات تصنيف ${category.name}`}
             >
@@ -154,7 +154,7 @@ export function CategoryCard({
 
             {isMenuOpen && (
               <div
-                className="absolute end-0 top-full mt-1 w-44 rounded-xl border border-border bg-surface p-1 shadow-lg z-20 animate-in fade-in zoom-in-95 duration-100"
+                className="absolute end-0 top-full mt-1.5 w-48 rounded-2xl border border-border bg-surface p-1.5 shadow-xl z-20 animate-in fade-in zoom-in-95 duration-150"
                 role="menu"
               >
                 <button
@@ -163,10 +163,10 @@ export function CategoryCard({
                     setIsMenuOpen(false);
                     onEdit(category);
                   }}
-                  className="w-full flex items-center gap-2 px-3 py-2 text-xs font-medium text-text-primary hover:bg-surface-muted rounded-lg transition-colors text-start"
+                  className="w-full min-h-[44px] flex items-center gap-2.5 px-3 py-2.5 text-xs font-semibold text-text-primary hover:bg-surface-muted rounded-xl transition-colors text-start active:bg-surface-muted/80"
                   role="menuitem"
                 >
-                  <Pencil className="w-3.5 h-3.5 text-text-muted" />
+                  <Pencil className="w-4 h-4 text-brand-teal" />
                   <span>تعديل التصنيف</span>
                 </button>
 
@@ -176,10 +176,10 @@ export function CategoryCard({
                     setIsMenuOpen(false);
                     onEditLimit(category);
                   }}
-                  className="w-full flex items-center gap-2 px-3 py-2 text-xs font-medium text-text-primary hover:bg-surface-muted rounded-lg transition-colors text-start"
+                  className="w-full min-h-[44px] flex items-center gap-2.5 px-3 py-2.5 text-xs font-semibold text-text-primary hover:bg-surface-muted rounded-xl transition-colors text-start active:bg-surface-muted/80"
                   role="menuitem"
                 >
-                  <Sliders className="w-3.5 h-3.5 text-brand-gold" />
+                  <Sliders className="w-4 h-4 text-brand-gold" />
                   <span>تعديل حد الإنفاق</span>
                 </button>
 
@@ -191,10 +191,10 @@ export function CategoryCard({
                     setIsMenuOpen(false);
                     onDelete(category);
                   }}
-                  className="w-full flex items-center gap-2 px-3 py-2 text-xs font-medium text-status-danger hover:bg-status-danger-bg rounded-lg transition-colors text-start"
+                  className="w-full min-h-[44px] flex items-center gap-2.5 px-3 py-2.5 text-xs font-semibold text-status-danger hover:bg-status-danger-bg rounded-xl transition-colors text-start active:bg-status-danger-bg/80"
                   role="menuitem"
                 >
-                  <Trash2 className="w-3.5 h-3.5" />
+                  <Trash2 className="w-4 h-4" />
                   <span>حذف التصنيف</span>
                 </button>
               </div>

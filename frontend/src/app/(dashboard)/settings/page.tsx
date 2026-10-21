@@ -109,6 +109,7 @@ export default function SettingsPage() {
   // Synchronize state when user data is loaded/updated
   React.useEffect(() => {
     if (user?.name) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setNameInput(user.name);
     }
     if (user?.currency && ["ILS", "USD", "JOD", "EUR"].includes(user.currency)) {
@@ -250,7 +251,7 @@ export default function SettingsPage() {
     } catch {
       return null;
     }
-  }, [user?.createdAt]);
+  }, [user]);
 
   const formattedCycleEndDate = React.useMemo(() => {
     if (!currentCycle?.endDate) return null;
@@ -263,7 +264,7 @@ export default function SettingsPage() {
     } catch {
       return null;
     }
-  }, [currentCycle?.endDate]);
+  }, [currentCycle]);
 
   return (
     <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8 pb-12">

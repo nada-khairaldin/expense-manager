@@ -7,16 +7,37 @@ export const createCategorySchema = z.object({
     .regex(/^#[0-9A-Fa-f]{6}$/, "Color must be a valid hex code (e.g. #22C55E)")
     .optional(),
   icon: z.string().trim().min(1).max(50).optional(),
+  monthlyLimit: z
+    .number()
+    .positive("Monthly limit must be a positive number")
+    .nullable()
+    .optional(),
+  limit: z
+    .number()
+    .positive("Monthly limit must be a positive number")
+    .nullable()
+    .optional(),
 });
 
 export const updateCategorySchema = z
   .object({
-    name: z.string().trim().min(1).max(50).optional(),
+    name: z.string().trim().min(1, "Name cannot be empty").max(50, "Name cannot exceed 50 characters").optional(),
     color: z
       .string()
       .regex(/^#[0-9A-Fa-f]{6}$/, "Color must be a valid hex code (e.g. #22C55E)")
+      .nullable()
       .optional(),
-    icon: z.string().trim().min(1).max(50).optional(),
+    icon: z.string().trim().min(1).max(50).nullable().optional(),
+    monthlyLimit: z
+      .number()
+      .positive("Monthly limit must be a positive number")
+      .nullable()
+      .optional(),
+    limit: z
+      .number()
+      .positive("Monthly limit must be a positive number")
+      .nullable()
+      .optional(),
     isArchived: z.boolean().optional(),
   })
   .refine((data) => Object.keys(data).length > 0, {

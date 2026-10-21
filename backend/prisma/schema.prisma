@@ -57,8 +57,9 @@ model Category {
   userId     String
   name       String
   icon       String?
-  color      String?
-  isArchived Boolean  @default(false)
+  color        String?
+  monthlyLimit Decimal? @db.Decimal(12, 2)
+  isArchived   Boolean  @default(false)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 

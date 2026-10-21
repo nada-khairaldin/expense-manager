@@ -6,15 +6,19 @@ export type CategoryStatus =
   | "unavailable"; // غير متوفر / لم تُحسب بعد
 
 export interface CategoryItem {
-  id: number;
+  id: string;
+  userId?: string;
   name: string;
   icon: string;
   color: string;
   description?: string;
+  monthlyLimit?: number | null;
   limit: number | null; // null if no limit configured
   spent: number | null; // null if spending data is unavailable
   transactionCount?: number;
+  isArchived?: boolean;
   createdAt?: string;
+  updatedAt?: string;
 }
 
 export type SpendingLimitFilter =
@@ -44,4 +48,24 @@ export interface CategoryFormData {
   color: string;
   description?: string;
   limit?: number | null;
+  monthlyLimit?: number | null;
+}
+
+export interface CreateCategoryPayload {
+  name: string;
+  icon?: string | null;
+  color?: string | null;
+  monthlyLimit?: number | null;
+  limit?: number | null;
+  description?: string | null;
+}
+
+export interface UpdateCategoryPayload {
+  name?: string;
+  icon?: string | null;
+  color?: string | null;
+  monthlyLimit?: number | null;
+  limit?: number | null;
+  description?: string | null;
+  isArchived?: boolean;
 }

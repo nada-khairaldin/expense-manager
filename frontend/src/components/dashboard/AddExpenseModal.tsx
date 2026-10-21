@@ -48,14 +48,14 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
           </div>
         </div>
 
-        <div className="flex justify-between items-center pt-2">
-          <Badge variant="neutral" size="sm">
+        <div className="flex flex-col-reverse sm:flex-row sm:justify-between items-stretch sm:items-center gap-3 pt-2">
+          <Badge variant="neutral" size="sm" className="justify-center sm:justify-start">
             حالة المعمارية: المرحلة 2
           </Badge>
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 rounded-xl bg-brand-primary text-white text-xs font-semibold hover:bg-brand-primary-hover transition-colors"
+            className="w-full sm:w-auto min-h-[44px] px-5 py-2.5 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-primary-hover active:scale-95 transition-all touch-manipulation inline-flex items-center justify-center"
           >
             حسنًا، فهمت
           </button>

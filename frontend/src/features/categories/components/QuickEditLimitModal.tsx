@@ -12,13 +12,13 @@ export interface QuickEditLimitModalProps {
   isOpen: boolean;
   onClose: () => void;
   category: CategoryItem | null;
-  onUpdateLimit: (categoryId: number, newLimit: number | null) => Promise<void> | void;
+  onUpdateLimit: (categoryId: string, newLimit: number | null) => Promise<void> | void;
 }
 
 interface QuickEditLimitFormProps {
   category: CategoryItem;
   onClose: () => void;
-  onUpdateLimit: (categoryId: number, newLimit: number | null) => Promise<void> | void;
+  onUpdateLimit: (categoryId: string, newLimit: number | null) => Promise<void> | void;
 }
 
 function QuickEditLimitForm({ category, onClose, onUpdateLimit }: QuickEditLimitFormProps) {
@@ -58,12 +58,12 @@ function QuickEditLimitForm({ category, onClose, onUpdateLimit }: QuickEditLimit
   return (
     <form onSubmit={handleSubmit} className="space-y-4 pt-1">
       {/* Category Identity */}
-      <div className="flex items-center gap-3 p-3 rounded-xl border border-border bg-surface-muted/40">
+      <div className="flex items-center gap-3 p-3 rounded-2xl border border-border bg-surface-muted/40">
         <CategoryIcon iconName={category.icon} color={category.color} size="md" />
-        <div>
-          <div className="text-xs font-bold text-text-primary">{category.name}</div>
-          <div className="text-[11px] text-text-muted">
-            الإنفاق الحالي في الدورة: {category.spent !== null ? formatCurrency(category.spent) : "غير متوفر"}
+        <div className="min-w-0">
+          <div className="text-xs sm:text-sm font-bold text-text-primary truncate">{category.name}</div>
+          <div className="text-[11px] text-text-muted mt-0.5">
+            الإنفاق الفعلي المسجل: {category.spent !== null ? formatCurrency(category.spent) : "غير متوفر"}
           </div>
         </div>
       </div>
@@ -74,7 +74,7 @@ function QuickEditLimitForm({ category, onClose, onUpdateLimit }: QuickEditLimit
           <label htmlFor="quick-limit-input" className="block text-xs font-bold text-text-primary">
             الحد المالي الجديد
           </label>
-          <span className="text-[11px] text-text-muted">بالشيكل (₪)</span>
+          <span className="text-[11px] text-text-muted">المبلغ بالعملة المعتمدة</span>
         </div>
         <input
           id="quick-limit-input"
@@ -85,7 +85,7 @@ function QuickEditLimitForm({ category, onClose, onUpdateLimit }: QuickEditLimit
           onChange={(e) => setLimitValue(e.target.value)}
           placeholder="اتركيه فارغًا لإلغاء الحد المالي"
           className={cn(
-            "w-full px-3.5 py-2.5 rounded-xl border bg-surface-muted/30 text-xs text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-brand-teal transition-all",
+            "w-full px-3.5 h-11 sm:h-10 rounded-xl border bg-surface-muted/30 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-brand-teal transition-all",
             error ? "border-status-danger" : "border-border"
           )}
           disabled={isSubmitting}
@@ -94,7 +94,7 @@ function QuickEditLimitForm({ category, onClose, onUpdateLimit }: QuickEditLimit
         {error ? (
           <p className="text-[11px] text-status-danger mt-1">{error}</p>
         ) : (
-          <p className="text-[11px] text-text-muted mt-1">
+          <p className="text-[11px] text-text-muted mt-1 leading-relaxed">
             إذا تركتِ الحقل فارغًا، سيصبح التصنيف &quot;بدون حد إنفاق&quot;.
           </p>
         )}
@@ -102,14 +102,14 @@ function QuickEditLimitForm({ category, onClose, onUpdateLimit }: QuickEditLimit
 
       {/* Quick Amount Suggestion Buttons */}
       <div className="space-y-1.5">
-        <span className="text-[11px] font-semibold text-text-muted">اقتراحات سريعة:</span>
-        <div className="flex flex-wrap gap-1.5">
+        <span className="text-[11px] font-bold text-text-muted">اقتراحات سريعة بلمسة واحدة:</span>
+        <div className="flex flex-wrap gap-2">
           {[500, 1000, 1500, 2000, 3000].map((amt) => (
             <button
               key={amt}
               type="button"
               onClick={() => setLimitValue(String(amt))}
-              className="px-2.5 py-1 rounded-lg border border-border bg-surface-muted/50 text-[11px] font-semibold text-text-secondary hover:text-text-primary hover:border-brand-teal transition-colors"
+              className="px-3 py-1.5 min-h-[38px] rounded-xl border border-border bg-surface-muted/50 text-xs font-bold text-text-secondary hover:text-text-primary hover:border-brand-teal active:scale-95 transition-all touch-manipulation"
             >
               {formatCurrency(amt)}
             </button>
@@ -117,7 +117,7 @@ function QuickEditLimitForm({ category, onClose, onUpdateLimit }: QuickEditLimit
           <button
             type="button"
             onClick={() => setLimitValue("")}
-            className="px-2.5 py-1 rounded-lg border border-border bg-surface-muted/50 text-[11px] font-semibold text-text-muted hover:text-status-warning transition-colors"
+            className="px-3 py-1.5 min-h-[38px] rounded-xl border border-border bg-surface-muted/50 text-xs font-bold text-text-muted hover:text-status-warning active:scale-95 transition-all touch-manipulation"
           >
             إلغاء الحد
           </button>
@@ -125,19 +125,19 @@ function QuickEditLimitForm({ category, onClose, onUpdateLimit }: QuickEditLimit
       </div>
 
       {/* Footer Actions */}
-      <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-border mt-4">
+      <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 pt-3 border-t border-border mt-4">
         <button
           type="button"
           onClick={onClose}
           disabled={isSubmitting}
-          className="px-4 py-2 rounded-xl border border-border bg-surface text-text-secondary hover:text-foreground hover:bg-surface-muted text-xs font-medium transition-colors"
+          className="w-full sm:w-auto h-11 sm:h-10 px-5 rounded-xl border border-border bg-surface text-text-secondary hover:text-foreground hover:bg-surface-muted text-xs sm:text-sm font-semibold transition-colors active:scale-95"
         >
           إلغاء
         </button>
         <button
           type="submit"
           disabled={isSubmitting}
-          className="inline-flex items-center justify-center gap-2 px-5 py-2 rounded-xl bg-brand-primary text-white text-xs font-bold hover:bg-brand-primary-hover dark:bg-brand-teal dark:hover:bg-brand-teal/90 shadow-sm transition-all disabled:opacity-50"
+          className="w-full sm:w-auto h-11 sm:h-10 inline-flex items-center justify-center gap-2 px-6 rounded-xl bg-brand-primary text-white text-xs sm:text-sm font-bold hover:bg-brand-primary-hover dark:bg-brand-teal dark:hover:bg-brand-teal/90 shadow-sm transition-all active:scale-95 disabled:opacity-50"
         >
           {isSubmitting ? (
             <>

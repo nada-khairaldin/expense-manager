@@ -13,6 +13,7 @@ import { useAddExpense } from "@/components/layout/DashboardShell";
 import { StatCard } from "@/components/ui/StatCard";
 import { Badge } from "@/components/ui/Badge";
 import { useAuth } from "@/features/auth/AuthContext";
+import { useCategories } from "@/features/categories/useCategories";
 import { getCurrentBudgetCycleApi } from "@/features/auth/api";
 import { type BudgetCycle } from "@/features/auth/types";
 import { EditCycleBudgetModal } from "@/components/budget/EditCycleBudgetModal";
@@ -77,6 +78,34 @@ export default function DashboardPage() {
     effectiveBudget > 0
       ? Number(((effectiveTotalExpenses / effectiveBudget) * 100).toFixed(1))
       : 0;
+
+  const { categories: realCategories } = useCategories();
+
+  const effectiveCategories = React.useMemo(() => {
+    if (selectedPeriod === "current" && token) {
+      return realCategories.map((cat) => {
+        const limit = cat.limit !== null && cat.limit !== undefined ? Number(cat.limit) : null;
+        const spent = cat.spent !== null && cat.spent !== undefined ? Number(cat.spent) : 0;
+        const percentage = limit !== null && limit > 0 ? (spent / limit) * 100 : null;
+        let status: "normal" | "warning" | "exceeded" = "normal";
+        if (percentage !== null) {
+          if (percentage >= 100) status = "exceeded";
+          else if (percentage >= 85) status = "warning";
+        }
+        return {
+          id: cat.id,
+          name: cat.name,
+          icon: cat.icon || "Layers",
+          color: cat.color || "#16856B",
+          spent,
+          limit,
+          percentage,
+          status,
+        };
+      });
+    }
+    return data.categories;
+  }, [selectedPeriod, token, realCategories, data.categories]);
 
   return (
     <div className="space-y-6">
@@ -221,7 +250,7 @@ export default function DashboardPage() {
           />
         </div>
         <div className="lg:col-span-5">
-          <CategorySpendingList categories={data.categories} />
+          <CategorySpendingList categories={effectiveCategories} />
         </div>
       </div>
 

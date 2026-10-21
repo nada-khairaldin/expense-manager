@@ -23,10 +23,10 @@ export function DashboardHeader({ onOpenAddExpense }: DashboardHeaderProps) {
   };
 
   return (
-    <header className="sticky top-0 z-20 h-16 border-b border-border bg-surface/90 backdrop-blur px-4 sm:px-6 flex items-center justify-between transition-colors">
+    <header className="sticky top-0 z-20 h-16 border-b border-border bg-surface/90 backdrop-blur-md px-3 sm:px-6 flex items-center justify-between transition-colors pt-safe">
       {/* Mobile Brand indicator */}
-      <div className="flex items-center gap-3 lg:hidden">
-        <Link href="/dashboard" className="flex items-center">
+      <div className="flex items-center gap-2 lg:hidden">
+        <Link href="/dashboard" className="flex items-center active:scale-95 transition-all">
           <Logo variant="horizontal" size="sm" />
         </Link>
       </div>
@@ -48,7 +48,7 @@ export function DashboardHeader({ onOpenAddExpense }: DashboardHeaderProps) {
         <button
           type="button"
           onClick={onOpenAddExpense}
-          className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-brand-teal text-white text-xs font-semibold hover:opacity-90 shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-brand-teal"
+          className="inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-3.5 h-10 rounded-xl bg-brand-teal text-white text-xs font-bold hover:opacity-95 shadow-xs transition-all active:scale-95 touch-manipulation focus:outline-none focus:ring-2 focus:ring-brand-teal"
         >
           <PlusCircle className="w-4 h-4" />
           <span className="hidden sm:inline">إضافة مصروف</span>
@@ -56,7 +56,7 @@ export function DashboardHeader({ onOpenAddExpense }: DashboardHeaderProps) {
         </button>
 
         {user && (
-          <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-muted/60 border border-border text-xs text-brand-primary dark:text-foreground font-semibold">
+          <div className="hidden md:flex items-center gap-2 px-3 py-1.5 h-10 rounded-xl bg-surface-muted/60 border border-border text-xs text-brand-primary dark:text-foreground font-semibold">
             <div className="w-6 h-6 rounded-lg bg-brand-primary/10 dark:bg-brand-primary/30 flex items-center justify-center text-brand-primary dark:text-foreground text-[11px] font-bold">
               {user.name.slice(0, 1).toUpperCase()}
             </div>
@@ -64,12 +64,14 @@ export function DashboardHeader({ onOpenAddExpense }: DashboardHeaderProps) {
           </div>
         )}
 
-        <ThemeToggle />
+        <div className="h-10 flex items-center">
+          <ThemeToggle />
+        </div>
 
         <button
           type="button"
           onClick={logout}
-          className="p-2 rounded-xl border border-border text-text-muted hover:text-status-danger hover:border-status-danger/30 hover:bg-status-danger-bg transition-colors"
+          className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-xl border border-border text-text-muted hover:text-status-danger hover:border-status-danger/30 hover:bg-status-danger-bg flex items-center justify-center active:scale-95 transition-all touch-manipulation"
           title="تسجيل الخروج"
           aria-label="تسجيل الخروج"
         >

@@ -144,7 +144,7 @@ function EditCycleBudgetModalContent({
                 onClick={() => setAmount(String(preset))}
                 disabled={isSubmitting}
                 className={cn(
-                  "px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border",
+                  "px-3.5 py-2 min-h-[38px] rounded-xl text-xs font-semibold transition-all border touch-manipulation active:scale-95",
                   isSelected
                     ? "bg-brand-primary text-white border-brand-primary dark:bg-brand-teal dark:border-brand-teal shadow-sm"
                     : "border-border bg-surface text-text-secondary hover:bg-surface-muted"
@@ -175,7 +175,7 @@ function EditCycleBudgetModalContent({
             onChange={(e) => setAmount(e.target.value)}
             disabled={isSubmitting}
             placeholder="5000"
-            className="w-full px-4 py-2.5 rounded-xl border border-border bg-surface text-brand-primary dark:text-foreground font-mono font-bold text-sm focus:outline-none focus:ring-2 focus:ring-brand-teal transition-all pe-12"
+            className="w-full h-11 px-4 py-2.5 rounded-xl border border-border bg-surface text-brand-primary dark:text-foreground font-mono font-bold text-sm focus:outline-none focus:ring-2 focus:ring-brand-teal transition-all pe-12"
           />
           <span className="absolute inset-y-0 end-0 pe-4 flex items-center text-text-muted font-bold text-xs pointer-events-none">
             {currencySymbol}
@@ -184,12 +184,12 @@ function EditCycleBudgetModalContent({
       </div>
 
       {/* Dialog Actions */}
-      <div className="flex items-center justify-end gap-3 pt-3 border-t border-border">
+      <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center sm:justify-end gap-2.5 sm:gap-3 pt-3 border-t border-border">
         <button
           type="button"
           onClick={onClose}
           disabled={isSubmitting}
-          className="px-4 py-2 rounded-xl border border-border text-xs font-semibold text-text-secondary hover:bg-surface-muted transition-colors"
+          className="w-full sm:w-auto min-h-[44px] px-4 py-2.5 rounded-xl border border-border text-xs font-semibold text-text-secondary hover:bg-surface-muted active:scale-95 transition-all touch-manipulation inline-flex items-center justify-center"
         >
           إلغاء
         </button>
@@ -197,10 +197,10 @@ function EditCycleBudgetModalContent({
           type="submit"
           disabled={isSubmitting || isSuccess}
           className={cn(
-            "inline-flex items-center gap-2 px-5 py-2 rounded-xl text-xs font-bold text-white shadow-sm transition-all",
+            "w-full sm:w-auto min-h-[44px] inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold text-white shadow-sm transition-all touch-manipulation",
             isSubmitting || isSuccess
               ? "bg-brand-primary/70 cursor-not-allowed"
-              : "bg-brand-primary hover:bg-brand-primary-hover active:scale-[0.99]"
+              : "bg-brand-primary hover:bg-brand-primary-hover active:scale-95"
           )}
         >
           {isSubmitting ? (

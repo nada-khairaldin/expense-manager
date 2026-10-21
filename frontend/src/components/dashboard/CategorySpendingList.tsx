@@ -48,7 +48,16 @@ export function CategorySpendingList({ categories }: CategorySpendingListProps) 
       </CardHeader>
 
       <CardContent className="space-y-4 pt-1 flex-1">
-        {categories.map((cat) => {
+        {categories.length === 0 ? (
+          <div className="flex flex-col items-center justify-center p-8 text-center rounded-xl border border-dashed border-border bg-surface-muted/20 my-auto">
+            <Layers className="w-8 h-8 text-text-muted mb-2 opacity-60" />
+            <p className="text-xs font-bold text-text-primary">لا توجد تصنيفات نشطة حاليًا</p>
+            <p className="text-[11px] text-text-muted mt-1">
+              أضيفي تصنيفات جديدة من صفحة التصنيفات لمتابعة استهلاك الميزانية.
+            </p>
+          </div>
+        ) : (
+          categories.map((cat) => {
           const IconComponent = iconMap[cat.icon] ?? Layers;
           const hasLimit = typeof cat.limit === "number";
 
@@ -147,7 +156,7 @@ export function CategorySpendingList({ categories }: CategorySpendingListProps) 
               )}
             </div>
           );
-        })}
+        }))}
       </CardContent>
     </Card>
   );

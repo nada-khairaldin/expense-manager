@@ -12,7 +12,7 @@ export interface ExpenseItem {
 }
 
 export interface CategoryBudget {
-  id: number;
+  id: number | string;
   name: string;
   icon: string;
   color: string;

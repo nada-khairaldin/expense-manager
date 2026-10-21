@@ -22,6 +22,7 @@ router.get("/", getCategories);
 router.get("/:id", getCategoryById);
 router.post("/", validateBody(createCategorySchema), createCategory);
 router.patch("/:id", validateBody(updateCategorySchema), editCategory);
+router.put("/:id", validateBody(updateCategorySchema), editCategory);
 router.delete("/:id", deleteCategory);
 
 export default router;
