@@ -22,7 +22,9 @@ export function formatCurrency(
 ): string {
   const cfg =
     options.currency ??
-    (options.currencyCode ? getCurrencyConfig(options.currencyCode) : defaultCurrency);
+    (options.currencyCode
+      ? (typeof getCurrencyConfig === "function" ? getCurrencyConfig(options.currencyCode) : defaultCurrency)
+      : defaultCurrency);
   const isNegative = amount < 0;
   const absoluteValue = Math.abs(amount);
 

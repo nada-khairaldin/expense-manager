@@ -4,7 +4,18 @@ import React from "react";
 import { BarChart3, RefreshCw, Calendar, Wallet } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { formatDate } from "@/lib/formatters/formatDate";
-import { getCurrencyConfig } from "@/config/currency";
+import { getCurrencyConfig, defaultCurrency, type CurrencyConfig } from "@/config/currency";
+
+function resolveCurrencyConfig(currency?: string): CurrencyConfig {
+  try {
+    if (typeof getCurrencyConfig === "function") {
+      return getCurrencyConfig(currency);
+    }
+  } catch {
+    // fallback
+  }
+  return defaultCurrency;
+}
 
 interface ReportHeaderProps {
   periodLabel: string;
@@ -23,7 +34,7 @@ export function ReportHeader({
   isLoading,
   onRefresh,
 }: ReportHeaderProps) {
-  const currencyCfg = getCurrencyConfig(currency);
+  const currencyCfg = resolveCurrencyConfig(currency);
 
   const formattedDateRange =
     startDate && endDate

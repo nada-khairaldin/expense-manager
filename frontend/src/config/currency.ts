@@ -47,9 +47,26 @@ export const SUPPORTED_CURRENCIES: Record<string, CurrencyConfig> = {
   },
 };
 
-export const defaultCurrency: CurrencyConfig = SUPPORTED_CURRENCIES.ILS;
+export const defaultCurrency: CurrencyConfig = {
+  code: "ILS",
+  symbol: "₪",
+  nameAr: "شيكل إسرائيلي جديد",
+  nameEn: "Israeli New Shekel",
+  locale: "ar-IL",
+  symbolPosition: "start",
+  fractionDigits: 2,
+};
 
 export function getCurrencyConfig(code?: string | null): CurrencyConfig {
   if (!code) return defaultCurrency;
-  return SUPPORTED_CURRENCIES[code.toUpperCase()] ?? defaultCurrency;
+  const upper = String(code).toUpperCase().trim();
+  return SUPPORTED_CURRENCIES[upper] || defaultCurrency;
 }
+
+const currencyModule = {
+  defaultCurrency,
+  SUPPORTED_CURRENCIES,
+  getCurrencyConfig,
+};
+
+export default currencyModule;
