@@ -1,8 +1,10 @@
-import { defaultCurrency, type CurrencyConfig } from "@/config/currency";
+import { defaultCurrency, getCurrencyConfig, type CurrencyConfig } from "@/config/currency";
 
 export interface FormatCurrencyOptions {
   /** Override default currency configuration */
   currency?: CurrencyConfig;
+  /** Currency code (e.g., 'ILS', 'USD', 'JOD', 'EUR') */
+  currencyCode?: string | null;
   /** Whether to show a plus sign for positive numbers */
   showPositiveSign?: boolean;
   /** Custom decimal places (default is currency config's fractionDigits, typically 2) */
@@ -18,7 +20,9 @@ export function formatCurrency(
   amount: number,
   options: FormatCurrencyOptions = {}
 ): string {
-  const cfg = options.currency ?? defaultCurrency;
+  const cfg =
+    options.currency ??
+    (options.currencyCode ? getCurrencyConfig(options.currencyCode) : defaultCurrency);
   const isNegative = amount < 0;
   const absoluteValue = Math.abs(amount);
 
@@ -34,8 +38,10 @@ export function formatCurrency(
 
   const formattedNumber = numberFormatter.format(absoluteValue);
 
-  // Consistent format with currency symbol: ₪ 1,250.00
-  let result = `${cfg.symbol} ${formattedNumber}`;
+  // Consistent format with currency symbol
+  let result = cfg.symbolPosition === "end"
+    ? `${formattedNumber} ${cfg.symbol}`
+    : `${cfg.symbol} ${formattedNumber}`;
 
   if (isNegative) {
     result = `-${result}`;

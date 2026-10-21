@@ -62,98 +62,39 @@ export async function updateBudgetSetup(
   userId: string,
   input: BudgetSetupInput,
 ): Promise<FormattedUserSettings> {
-  return await prisma.$transaction(async (tx) => {
-    const updated = await tx.userSettings.upsert({
-      where: { userId },
-      update: {
-        currency: input.currency,
-        budgetRenewalDay: input.budgetRenewalDay,
-        ...(input.defaultBudgetAmount !== undefined
-          ? { defaultBudgetAmount: input.defaultBudgetAmount }
-          : {}),
-        budgetSetupCompleted: true,
-      },
-      create: {
-        userId,
-        currency: input.currency,
-        budgetRenewalDay: input.budgetRenewalDay,
-        defaultBudgetAmount: input.defaultBudgetAmount ?? null,
-        budgetSetupCompleted: true,
-      },
-      select: {
-        id: true,
-        userId: true,
-        currency: true,
-        budgetRenewalDay: true,
-        defaultBudgetAmount: true,
-        budgetSetupCompleted: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-    });
-
-    // If defaultBudgetAmount was provided, immediately update current active cycle if it exists
-    if (input.defaultBudgetAmount !== undefined && input.defaultBudgetAmount !== null) {
-      const today = toUTCDateOnly(new Date());
-      const currentCycle = await tx.budgetCycle.findFirst({
-        where: {
-          userId,
-          startDate: { lte: today },
-          endDate: { gte: today },
-        },
-      });
-
-      if (currentCycle) {
-        await tx.budgetCycle.update({
-          where: { id: currentCycle.id },
-          data: {
-            budgetAmount: input.defaultBudgetAmount,
-          },
-        });
-      }
-    }
-
-    return {
-      ...updated,
-      defaultBudgetAmount: updated.defaultBudgetAmount
-        ? Number(updated.defaultBudgetAmount)
-        : null,
-    };
+  const updated = await prisma.userSettings.upsert({
+    where: { userId },
+    update: {
+      currency: input.currency,
+      budgetRenewalDay: input.budgetRenewalDay,
+      ...(input.defaultBudgetAmount !== undefined
+        ? { defaultBudgetAmount: input.defaultBudgetAmount }
+        : {}),
+      budgetSetupCompleted: true,
+    },
+    create: {
+      userId,
+      currency: input.currency,
+      budgetRenewalDay: input.budgetRenewalDay,
+      defaultBudgetAmount: input.defaultBudgetAmount ?? null,
+      budgetSetupCompleted: true,
+    },
+    select: {
+      id: true,
+      userId: true,
+      currency: true,
+      budgetRenewalDay: true,
+      defaultBudgetAmount: true,
+      budgetSetupCompleted: true,
+      createdAt: true,
+      updatedAt: true,
+    },
   });
-}
 
-export async function updateDefaultBudget(
-  userId: string,
-  defaultBudgetAmount: number,
-): Promise<FormattedUserSettings> {
-  return await prisma.$transaction(async (tx) => {
-    const updated = await tx.userSettings.upsert({
-      where: { userId },
-      update: {
-        defaultBudgetAmount,
-        budgetSetupCompleted: true,
-      },
-      create: {
-        userId,
-        currency: "ILS",
-        budgetRenewalDay: 1,
-        defaultBudgetAmount,
-        budgetSetupCompleted: true,
-      },
-      select: {
-        id: true,
-        userId: true,
-        currency: true,
-        budgetRenewalDay: true,
-        defaultBudgetAmount: true,
-        budgetSetupCompleted: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-    });
-
+  // If defaultBudgetAmount was provided, immediately update current active cycle if it exists
+  if (input.defaultBudgetAmount !== undefined && input.defaultBudgetAmount !== null) {
     const today = toUTCDateOnly(new Date());
-    const currentCycle = await tx.budgetCycle.findFirst({
+    const currentCycle = await prisma.budgetCycle.findFirst({
       where: {
         userId,
         startDate: { lte: today },
@@ -162,19 +103,74 @@ export async function updateDefaultBudget(
     });
 
     if (currentCycle) {
-      await tx.budgetCycle.update({
+      await prisma.budgetCycle.update({
         where: { id: currentCycle.id },
         data: {
-          budgetAmount: defaultBudgetAmount,
+          budgetAmount: input.defaultBudgetAmount,
         },
       });
     }
+  }
 
-    return {
-      ...updated,
-      defaultBudgetAmount: updated.defaultBudgetAmount
-        ? Number(updated.defaultBudgetAmount)
-        : null,
-    };
+  return {
+    ...updated,
+    defaultBudgetAmount: updated.defaultBudgetAmount
+      ? Number(updated.defaultBudgetAmount)
+      : null,
+  };
+}
+
+export async function updateDefaultBudget(
+  userId: string,
+  defaultBudgetAmount: number,
+): Promise<FormattedUserSettings> {
+  const updated = await prisma.userSettings.upsert({
+    where: { userId },
+    update: {
+      defaultBudgetAmount,
+      budgetSetupCompleted: true,
+    },
+    create: {
+      userId,
+      currency: "ILS",
+      budgetRenewalDay: 1,
+      defaultBudgetAmount,
+      budgetSetupCompleted: true,
+    },
+    select: {
+      id: true,
+      userId: true,
+      currency: true,
+      budgetRenewalDay: true,
+      defaultBudgetAmount: true,
+      budgetSetupCompleted: true,
+      createdAt: true,
+      updatedAt: true,
+    },
   });
+
+  const today = toUTCDateOnly(new Date());
+  const currentCycle = await prisma.budgetCycle.findFirst({
+    where: {
+      userId,
+      startDate: { lte: today },
+      endDate: { gte: today },
+    },
+  });
+
+  if (currentCycle) {
+    await prisma.budgetCycle.update({
+      where: { id: currentCycle.id },
+      data: {
+        budgetAmount: defaultBudgetAmount,
+      },
+    });
+  }
+
+  return {
+    ...updated,
+    defaultBudgetAmount: updated.defaultBudgetAmount
+      ? Number(updated.defaultBudgetAmount)
+      : null,
+  };
 }
